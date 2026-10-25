@@ -1,0 +1,47 @@
+#  Flare Tokens · drops.yml · tokens for killing mobs
+#  After editing: /tokens reload
+#
+#  Only kills made by a player count (also with bows, tridents...).
+#
+#  Each mob (ZOMBIE, SKELETON, CREEPER, ... names of this Minecraft version):
+#    chance   percent of kills that give tokens (100 = always)
+#    amount   "5" fixed · "1-10" random · "random_number(1;10)" like 3.x
+#    actions  optional: what happens when tokens drop ({amount} = tokens). Without it: action bar message
+#             from lang/en.yml > drops.received. Same actions as the shops ([MESSAGE], [TITLE], [SOUND]...)
+#    give     false = don't give the tokens automatically (only run the actions)
+#  Add a "DEFAULT:" entry to give tokens for every mob that is not in the list.
+
+enabled: false
+
+# Mobs from spawners give nothing
+ignore-spawner-mobs: true
+# Worlds where mobs give nothing
+disabled-worlds:
+  - "world_example"
+
+# Multiply the drop for players with a permission (the highest one counts)
+multipliers:
+  flaretokens.multiplier.vip: 1.5
+  flaretokens.multiplier.mvp: 2
+
+entity:
+  ZOMBIE:
+    chance: 50
+    amount: "1-3"
+  SKELETON:
+    chance: 50
+    amount: "1-3"
+  CREEPER:
+    chance: 60
+    amount: "2-4"
+  ENDERMAN:
+    chance: 100
+    amount: "3-6"
+    actions:
+      - "[ACTIONBAR] &#b57bff+{amount} tokens &7from an enderman"
+      - "[SOUND] ENTITY_EXPERIENCE_ORB_PICKUP 1 1.5"
+  WITHER:
+    chance: 100
+    amount: "100-200"
+    actions:
+      - "[BROADCAST] {prefix}&f{player} &7killed a wither and got &#b57bff{amount} &7tokens!"

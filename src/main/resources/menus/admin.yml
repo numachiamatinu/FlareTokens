@@ -1,0 +1,425 @@
+#  Flare Tokens · texts of the admin menus (/tokens settings and the editor)
+#  Player menu texts are in menus/*.yml and shops/*.yml (section "texts")
+#  Chat messages are in lang/en.yml   ·   after editing: /tokens reload
+#  Placeholders {value} {menu} ... are filled by the plugin, keep them.
+#
+#  ── Format ──────────────────────────────────────────────
+#  Colors    &a &c &e &f &7 ...   &l bold  &o italic  &n underline
+#  Hex       "&#b57bffText"
+#  Gradient  "<gradient:#8e2de2:#c471f5>Text</gradient>"   Rainbow "<rainbow>Text</rainbow>"
+#  Tip       always write texts between "quotes"
+
+common:
+  "on": "&aEnabled"
+  "off": "&cDisabled"
+  back:
+    name: "&c← Back"
+    lore: []
+  close:
+    name: "&cClose"
+    lore: []
+  previous:
+    name: "&#b57bff← Previous page"
+    lore: []
+  next:
+    name: "&#b57bffNext page →"
+    lore: []
+settings:
+  title: "<gradient:#8e2de2:#c471f5>Flare Tokens</gradient> &7- Settings"
+  info:
+    name: "<gradient:#8e2de2:#c471f5><bold>FlareTokens</bold></gradient> &7v{version}"
+    lore:
+    - "&7Storage: &f{storage}"
+    - "&7Accounts: &f{accounts}"
+    - "&7Shops: &f{shops}"
+    - "&7This server: &f{server}"
+  pay:
+    name: "&fPayments"
+    lore:
+    - "&7Players can send tokens"
+    - "&7with /tokens pay."
+    - ""
+    - "&7Status: {value}"
+    - "&#b57bffClick to toggle"
+  pay-offline:
+    name: "&fPay offline players"
+    lore:
+    - "&7/tokens pay also to players"
+    - "&7who are not online."
+    - ""
+    - "&7Status: {value}"
+    - "&#b57bffClick to toggle"
+  cheques:
+    name: "&fCheques"
+    lore:
+    - "&7/tokens withdraw turns tokens"
+    - "&7into an item to give away."
+    - ""
+    - "&7Status: {value}"
+    - "&#b57bffClick to toggle"
+  shop:
+    name: "&fShops"
+    lore:
+    - "&7Every shop of shops/."
+    - "&7Admins can always open them."
+    - ""
+    - "&7Status: {value}"
+    - "&#b57bffClick to toggle"
+  drops:
+    name: "&fMob drops"
+    lore:
+    - "&7Tokens for killing mobs"
+    - "&7(drops.yml)."
+    - ""
+    - "&7Status: {value}"
+    - "&#b57bffClick to toggle"
+  sounds:
+    name: "&fSounds"
+    lore:
+    - "&7Sounds of menus, payments"
+    - "&7and purchases."
+    - ""
+    - "&7Status: {value}"
+    - "&#b57bffClick to toggle"
+  update-check:
+    name: "&fUpdate check"
+    lore:
+    - "&7Tells admins when a new"
+    - "&7FlareTokens is out."
+    - ""
+    - "&7Status: {value}"
+    - "&#b57bffClick to toggle"
+  first-join:
+    name: "&fFirst join tokens"
+    lore:
+    - "&7Tokens given the first time"
+    - "&7a player joins."
+    - ""
+    - "&7Current: &f{value}"
+    - "&#b57bffClick to change"
+  pay-min:
+    name: "&fMinimum payment"
+    lore:
+    - "&7Smallest amount of /tokens pay."
+    - ""
+    - "&7Current: &f{value}"
+    - "&#b57bffClick to change"
+  pay-cooldown:
+    name: "&fPayment cooldown"
+    lore:
+    - "&7Seconds between two payments"
+    - "&7of the same player."
+    - ""
+    - "&7Current: &f{value}s"
+    - "&#b57bffClick to change"
+  confirm-above:
+    name: "&fConfirm purchases from"
+    lore:
+    - "&7Products that cost at least this"
+    - "&7open the confirm menu (0 = only"
+    - "&7the ones with confirm: true)."
+    - ""
+    - "&7Current: &f{value} tokens"
+    - "&#b57bffClick to change"
+  history:
+    name: "&fHistory"
+    lore:
+    - "&7Every change of balance is saved"
+    - "&7(/tokens history)."
+    - ""
+    - "&7Status: {value}"
+    - "&7Kept: &f{days} &7days"
+    - "&#b57bffLeft-click &7toggle  &#b57bffRight-click &7days"
+  sale:
+    name: "&fTimed sale"
+    lore:
+    - "&7Lower every price for a while."
+    - ""
+    - "&7Now: &f{value}"
+    - "&#b57bffLeft-click &7start  &#b57bffRight-click &7stop"
+  main-shop:
+    name: "&fMain shop"
+    lore:
+    - "&7Shop opened by /tokens shop."
+    - ""
+    - "&7Current: &f{value}"
+    - "&#b57bffClick to change"
+  menus:
+    name: "&dMenus and shops"
+    lore:
+    - "&7{shops} shops + the menus of the plugin."
+    - "&7Edit them with drag and drop."
+    - ""
+    - "&#b57bffClick to open"
+  access:
+    name: "&fPlayer access"
+    lore:
+    - "&7What normal players can use."
+    - ""
+    - "&#b57bffClick to open"
+  top:
+    name: "&fTop players"
+    lore:
+    - "&7Players with the most tokens."
+    - ""
+    - "&#b57bffClick to open"
+  reload:
+    name: "&aReload files"
+    lore:
+    - "&7Reads every file again."
+    - ""
+    - "&#b57bffClick to reload"
+access:
+  title: "&7Player access"
+  menu:
+    name: "&f/tokens menu"
+    lore:
+    - "&7The tokens menu."
+    - ""
+    - "&7Status: {value}"
+    - "&#b57bffClick to toggle"
+  shop:
+    name: "&fShops"
+    lore:
+    - "&7/tokens shop, /tokenshop and"
+    - "&7the commands of the shops."
+    - ""
+    - "&7Status: {value}"
+    - "&#b57bffClick to toggle"
+  top:
+    name: "&fTop players"
+    lore:
+    - "&7/tokens top and the top menu."
+    - ""
+    - "&7Status: {value}"
+    - "&#b57bffClick to toggle"
+  history:
+    name: "&fOwn history"
+    lore:
+    - "&7/tokens history."
+    - ""
+    - "&7Status: {value}"
+    - "&#b57bffClick to toggle"
+  pay:
+    name: "&fPayments"
+    lore:
+    - "&7/tokens pay."
+    - ""
+    - "&7Status: {value}"
+    - "&#b57bffClick to toggle"
+  withdraw:
+    name: "&fCheques"
+    lore:
+    - "&7/tokens withdraw."
+    - ""
+    - "&7Status: {value}"
+    - "&#b57bffClick to toggle"
+menus:
+  title: "<gradient:#8e2de2:#c471f5>Menus and shops</gradient>"
+  help:
+    name: "&#b57bffHow it works"
+    lore:
+    - "&7Top: the menus of the plugin."
+    - "&7Below: your shops (shops/*.yml)."
+    - ""
+    - "&#b57bffLeft-click &7edit with drag and drop"
+    - "&#b57bffRight-click &7open it like a player"
+  builtin:
+    name: "&f{menu}"
+    lore:
+    - "&7{description}"
+    - "&7Status: {state}"
+    - ""
+    - "&#b57bffLeft-click &7edit  &#b57bffRight-click &7open"
+  shop:
+    name: "&f{menu}"
+    lore:
+    - "&7Items: &f{items} &8· &7products: &f{products}"
+    - "&7Commands: &f{commands}"
+    - "&7Status: {state}"
+    - ""
+    - "&#b57bffLeft-click &7edit  &#b57bffRight-click &7open"
+  new:
+    name: "&a+ New menu"
+    lore:
+    - "&7A new empty shop or category."
+    - ""
+    - "&#b57bffClick &7and write its name"
+  descriptions:
+    tokens: "/tokens menu: balance, shop, top, history"
+    top: "Players with the most tokens"
+    history: "Tokens got and spent"
+    confirm: "Opens before a purchase"
+editor:
+  title: "&7Editing » &f{menu} &7(close = save)"
+  example:
+  - "&8Example values: the real ones"
+  - "&8are filled in when players open it."
+  admin-only-tag:
+  - "&c● admins only"
+  actions-tag:
+  - "&8» {actions}"
+  more-tag:
+  - "&8+{count} more item(s) in this slot"
+  product-tag:
+  - "&8» price {price}"
+  list-slot:
+    name: "&bList slot #{number}"
+    lore:
+    - "&7Entries of the list go here."
+    - "&7Move it, or take it out to remove the slot."
+  product-slot:
+    name: "&bProduct being bought"
+    lore:
+    - "&7The product of the purchase"
+    - "&7is shown here."
+palette:
+  title: "&7Add to slot {slot}"
+  help:
+    name: "&#b57bffPalette"
+    lore:
+    - "&7Pick what to put on the slot."
+    - "&7Items of your inventory can also be"
+    - "&7dragged into the editor directly."
+  element:
+    lore:
+    - "&7In &f{amount} &7slot(s)"
+    - ""
+    - "&#b57bffClick to put it here"
+  glass:
+    name: "&fGlass pane"
+    lore:
+    - "&#b57bffClick to put it here"
+  link:
+    name: "&#b57bffButton to another menu"
+    lore:
+    - "&7Opens a shop or a menu"
+    - "&7([back] there comes back here)."
+    - ""
+    - "&#b57bffClick to open"
+  back-button:
+    name: "&#b57bffBack button"
+    lore:
+    - "&7Goes to the previous menu."
+    item: "&c← Back"
+  close-button:
+    name: "&#b57bffClose button"
+    lore:
+    - "&7Closes the menu."
+    item: "&cClose"
+  balance:
+    name: "&#b57bffBalance head"
+    lore:
+    - "&7The head of the player"
+    - "&7with his tokens."
+    item: "&f{player}"
+    item-lore:
+    - "&7Balance: &#b57bff{tokens_commas} tokens"
+  sell-hand:
+    name: "&a+ Sell the item in your hand"
+    lore:
+    - "&7Exactly that item (enchantments,"
+    - "&7name, everything)."
+    - ""
+    - "&#b57bffClick &7and write the price"
+picker:
+  title: "&7Button to which menu?"
+  entry:
+    lore:
+    - "&7{title}"
+    - ""
+    - "&#b57bffClick to pick it"
+  button-lore:
+  - ""
+  - "&#b57bffClick to open"
+product:
+  title: "&7Edit » &f{item}"
+  for-sale: "&afor sale"
+  not-for-sale: "&7not for sale (just a button)"
+  info:
+    name: "&f{item}"
+    lore:
+    - "&7{state}"
+    - "&7Name: {name}"
+  price:
+    name: "&fPrice"
+    lore:
+    - "&7Tokens it costs."
+    - ""
+    - "&7Current: &#b57bff{value}"
+    - "&#b57bffLeft-click &7change  &#b57bffRight-click &7not for sale"
+  confirm:
+    name: "&fConfirm menu"
+    lore:
+    - "&7A confirm menu opens first."
+    - ""
+    - "&7Status: {value}"
+    - "&#b57bffClick to toggle"
+  limit:
+    name: "&fLimit per player"
+    lore:
+    - "&7Times each player can buy it."
+    - ""
+    - "&7Current: &f{value} &8· &7resets: &f{reset}"
+    - "&#b57bffLeft-click &7change  &#b57bffRight-click &7reset time"
+  stock:
+    name: "&fStock"
+    lore:
+    - "&7Pieces for the whole server"
+    - "&7(all servers with MySQL)."
+    - ""
+    - "&7Current: &f{value} &8· &7resets: &f{reset}"
+    - "&#b57bffLeft-click &7change  &#b57bffRight-click &7reset time"
+  permission:
+    name: "&fPermission to buy"
+    lore:
+    - ""
+    - "&7Current: &f{value}"
+    - "&#b57bffLeft-click &7change  &#b57bffRight-click &7remove"
+  sale:
+    name: "&fIn timed sales"
+    lore:
+    - "&7/tokens sale lowers its price."
+    - ""
+    - "&7Status: {value}"
+    - "&#b57bffClick to toggle"
+  admin-only:
+    name: "&fAdmins only"
+    lore:
+    - "&7Normal players don't see it."
+    - ""
+    - "&7Status: {value}"
+    - "&#b57bffClick to toggle"
+  name:
+    name: "&fName"
+    lore:
+    - "&7Colors and gradients work."
+    - ""
+    - "&7Current: &f{value}"
+    - "&#b57bffClick to change"
+  commands:
+    name: "&fCommands"
+    lore:
+    - "&7Console commands run on purchase."
+    - ""
+    - "&7Commands: &f{value}"
+    - "&7Last: &f{last}"
+    - "&#b57bffLeft-click &7add  &#b57bffRight-click &7remove the last"
+  give:
+    name: "&fItems given"
+    lore:
+    - ""
+    - "&7Items: &f{value}"
+    - "&#b57bffLeft-click &7add the item in your hand"
+    - "&#b57bffRight-click &7remove the last"
+  delete:
+    name: "&cDelete"
+    lore:
+    - "&7Removes the item from the menu."
+    - ""
+    - "&cShift-click &7to delete"
+  resets:
+    never: "never"
+    daily: "every day"
+    weekly: "every week"
+    monthly: "every month"

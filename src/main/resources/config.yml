@@ -1,0 +1,155 @@
+#  Flare Tokens · config.yml · by TMDevelopment
+#  In-game: /tokens settings   ·   after editing this file: /tokens reload   (storage changes need a restart)
+#
+#  ── Format ──────────────────────────────────────────────
+#  Colors    &a &c &e &f &7 ...   &l bold  &o italic  &n underline
+#  Hex       "&#b57bffText"   (1.16+, older versions show the nearest color)
+#  Gradient  "<gradient:#8e2de2:#c471f5>Text</gradient>"   Rainbow "<rainbow>Text</rainbow>"
+#  Click     "<click:run_command:'/tokens'>Text</click>"   Hover "<hover:show_text:'Text'>Text</hover>"
+#  Tip       always write texts between "quotes"
+
+config-version: 1
+
+language: en
+
+# Anonymous usage statistics (TMDStats): plugin and Minecraft version, server software, player count,
+# storage type, number of shops, drops on/off. No player names, no IPs. false = this plugin sends nothing.
+# To turn them off for every TMDevelopment plugin: plugins/TMDStats/config.yml
+stats: true
+
+# Checks GitHub for a newer FlareTokens (read only, nothing is sent): one line in the console,
+# a message to admins when they join, and /tokens version. false = never check.
+update-check: true
+
+# Missing plugins are downloaded and started automatically (no restart needed).
+# Sources are tried in order: modrinth:<slug>, hangar:<slug>, github:<owner/repo>, url:<direct link>
+# Vault only connects the money for [buy(money)]: you still need an economy plugin (EssentialsX, CMI...).
+auto-install:
+  enabled: true
+  plugins:
+    PlaceholderAPI:
+      enabled: true
+      sources:
+        - "hangar:PlaceholderAPI"
+        - "modrinth:placeholderapi"
+        - "github:PlaceholderAPI/PlaceholderAPI"
+    Vault:
+      enabled: false
+      sources:
+        - "github:MilkBowl/Vault"
+
+# Where balances are saved.
+#   yaml   -> data/data.yml (small servers)
+#   sqlite -> data/data.db  (default, one server)
+#   mysql  -> shared database: several servers see the same balances (mariadb also works)
+# Same files and table as FlareTokens 3.x: old data is used as it is.
+storage:
+  type: sqlite
+  # Table name (3.x used "flaretokens")
+  table: "flaretokens"
+  mysql:
+    host: "localhost"
+    port: 3306
+    database: "minecraft"
+    username: "root"
+    password: ""
+    flags: "useSSL=false&characterEncoding=utf8"
+  # MySQL only: seconds between full reloads of online balances (safety net, changes normally arrive
+  # within network.sync-seconds). 0 = off
+  refresh-seconds: 60
+
+# Several servers on one MySQL database (BungeeCord / Velocity network): tokens are the coin of the whole network.
+network:
+  # Name of this server in the history (empty = "server-<port>")
+  server-name: ""
+  # Seconds between two checks for balances changed on the other servers
+  sync-seconds: 1
+
+# Every change of balance is saved: /tokens history and the history menu (menus/history.yml).
+history:
+  enabled: true
+  # Days to keep. 0 = forever
+  keep-days: 90
+
+# What normal players (without flaretokens.admin) can use. false = admins only.
+# Also in /tokens settings > Player access. Permissions (flaretokens.command.<name>) still apply.
+player-access:
+  # /tokens menu
+  menu: true
+  # shops (/tokens shop, /tokenshop and the open-commands of the shops)
+  shop: true
+  # /tokens top and the top menu
+  top: true
+  # /tokens history (own history)
+  history: true
+  # /tokens pay
+  pay: true
+  # /tokens withdraw (cheques)
+  withdraw: true
+
+# Tokens given to a player the first time he joins. 0 = none
+first-join-tokens: 0
+
+pay:
+  enabled: true
+  # Allow /tokens pay to players who are offline
+  allow-offline: true
+  min-amount: 1
+  # Seconds between two payments of the same player. 0 = off
+  cooldown-seconds: 0
+
+# /tokens withdraw <amount> turns tokens into an item; right click it to get them back.
+# Sneak + right click redeems the whole stack.
+# Placeholders: {amount} {amount_formatted} {amount_commas} {player}
+cheque:
+  enabled: true
+  min-amount: 1
+  item:
+    material: "[head] eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTVmZDY3ZDU2ZmZjNTNmYjM2MGExNzg3OWQ5YjUzMzhkNzMzMmQ4ZjEyOTQ5MWE1ZTE3ZThkNmU4YWVhNmMzYSJ9fX0="
+    display_name: "<gradient:#8e2de2:#c471f5><bold>Token Cheque</bold></gradient>"
+    lore:
+      - "&7Value: &#b57bff{amount_commas} tokens"
+      - "&7Signed by &f{player}"
+      - ""
+      - "&#b57bffRight click &7to redeem"
+    glow: false
+
+# Shops are the files in shops/: as many as you want (main.yml is the hub, ranks.yml and items.yml are examples).
+# Edit them in game with /tokens editor. Timed sales: /tokens sale <percent> <time> [shop].
+shop:
+  enabled: true
+  # Shop opened by /tokens shop and by the commands below
+  main-shop: "main"
+  # Extra commands that open the main shop (empty = none)
+  open-command:
+    - "tokenshop"
+  # How often items with "update: true" are redrawn, in ticks (20 = 1 second)
+  update-ticks: 20
+  # Milliseconds between two clicks of a player (stops double purchases)
+  click-cooldown-ms: 200
+  # Products that cost at least this much open the confirm menu (menus/confirm.yml). 0 = only "confirm: true"
+  confirm-above: 0
+
+top:
+  # Players kept in the top list (/tokens top and %flaretokens_top_<n>_name%)
+  size: 10
+  # Seconds between two refreshes of the top list
+  refresh-seconds: 60
+
+# Suffixes of the short format (1.2k, 3.4M ...)
+format:
+  suffixes: ["k", "M", "B", "T", "Q"]
+
+sounds:
+  enabled: true
+  receive: "ENTITY_EXPERIENCE_ORB_PICKUP"
+  pay: "ENTITY_PLAYER_LEVELUP"
+  redeem: "ENTITY_PLAYER_LEVELUP"
+  open-shop: "BLOCK_CHEST_OPEN"
+  buy: "ENTITY_PLAYER_LEVELUP"
+  click: "UI_BUTTON_CLICK"
+  error: "ENTITY_VILLAGER_NO"
+
+logs:
+  # Every change of balance in logs/transactions.log
+  transactions: true

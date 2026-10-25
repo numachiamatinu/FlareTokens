@@ -1,0 +1,87 @@
+#  Flare Tokens · menu 'history' (/tokens history)
+#  In-game: /tokens editor history   (drag & drop · close = save)
+#
+#  enabled         false = menu off for everyone
+#  rows            size of the menu: 1-6 rows (9-54 slots)
+#  open-commands   [wallet] → /wallet opens it   ·   open-permission: "" = everyone
+#  slots           "4"  "19-25"  "0-8,45-53"   (row 1 = 0-8, row 2 = 9-17 ...)
+#  material        DIAMOND · head:{player} · head:Notch · texture:<minecraft-heads value>
+#  admin-only      true = players don't see it
+#  actions         [close] [back] [open] <menu> [player] cmd [console] cmd [message] text [sound] key
+#  entries        one slot per change of the balance, newest first (pages with previous / next)
+#  Placeholders   entries: {action} {sign} {amount} {balance} {cause} {date} {server}
+#                 every item: {target} {target_tokens} {page}
+#
+#  ── Format ──────────────────────────────────────────────
+#  Colors    &a &c &e &f &7 ...   &l bold  &o italic  &n underline
+#  Hex       "&#b57bffText"   Gradient "<gradient:#8e2de2:#c471f5>Text</gradient>"   Rainbow "<rainbow>Text</rainbow>"
+#  Tip       always write texts between "quotes"
+
+enabled: true
+title: "<gradient:#8e2de2:#c471f5><bold>HISTORY</bold></gradient>"
+rows: 6
+open-commands: []
+open-permission: ""
+elements:
+  info:
+    slots: "4"
+    admin-only: false
+    material: "head:{target}"
+    name: "&f{target}"
+    lore:
+      - "&7Balance: &#b57bff{target_tokens} tokens"
+      - "&7Page &f{page}"
+  entries:
+    slots: "10-16,19-25,28-34,37-43"
+    admin-only: false
+    # material comes from texts > materials (by action); write one here to use the same for all
+    name: "&f{action} &8· &#b57bff{sign}{amount}"
+    lore:
+      - "&7Balance after: &f{balance}"
+      - "&7Why: &f{cause}"
+      - "&7When: &f{date}"
+      - "&7Server: &f{server}"
+  previous:
+    slots: "48"
+    admin-only: false
+    material: "ARROW"
+    name: "&#b57bff← Previous page"
+    lore: []
+  back:
+    slots: "49"
+    admin-only: false
+    material: "BARRIER"
+    name: "&cBack"
+    lore: []
+  next:
+    slots: "50"
+    admin-only: false
+    material: "ARROW"
+    name: "&#b57bffNext page →"
+    lore: []
+decorations:
+  - slots: "0-3,5-9,17,18,26,27,35,36,44-47,51-53"
+    material: "PURPLE_STAINED_GLASS_PANE"
+    name: " "
+    lore: []
+    glow: false
+    admin-only: false
+    actions: []
+
+# ── Texts of this menu ──
+texts:
+  date-format: "dd/MM/yyyy HH:mm"
+  actions:
+    give: "Received"
+    take: "Spent"
+    set: "Balance set"
+    create: "Account created"
+  materials:
+    give: "LIME_DYE"
+    take: "RED_DYE"
+    set: "YELLOW_DYE"
+    create: "PAPER"
+  empty:
+    material: "BARRIER"
+    name: "&7Nothing here yet"
+    lore: []

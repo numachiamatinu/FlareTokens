@@ -1,0 +1,27 @@
+# Default texts of the shops (each shop can change them in its own "texts" section).
+texts:
+  product:
+    info:
+      - ""
+      - "&7Price: &#b57bff{price} tokens"
+    sale:
+      - "&a&l-{sale}% &8(&7&m{original_price}&8) &7ends in &f{sale_ends}"
+    limit:
+      - "&7Bought: &f{bought}&7/&f{limit}"
+    stock:
+      - "&7Left: &f{stock_left}&7/&f{stock}"
+    can-buy:
+      - ""
+      - "&#b57bffClick to buy"
+    not-enough:
+      - ""
+      - "&cYou need &f{missing} &cmore tokens"
+    no-permission:
+      - ""
+      - "&cYou can't buy this"
+    limit-reached:
+      - ""
+      - "&cYou already bought this"
+    sold-out:
+      - ""
+      - "&cSold out"

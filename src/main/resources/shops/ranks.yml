@@ -1,0 +1,125 @@
+#  Flare Tokens · shops/ · every .yml file here is a menu (a shop, a category, a hub ...)
+#  In-game: /tokens editor <name>   (drag & drop · close = save · shift + left click on an item = product settings)
+#  Open it: /tokens shop <name>, its open-commands, or [open] <name> from another menu ([back] goes back)
+#
+#  ── Menu ────────────────────────────────────────────────
+#  enabled          false = menu off for everyone        rows   1-6 rows (9-54 slots)
+#  open-commands    [store] → /store opens it            open-permission   "" = everyone
+#
+#  ── Items ───────────────────────────────────────────────
+#  slots            "4"  "19-25"  "0-8,45-53"   (row 1 = 0-8, row 2 = 9-17 ...)
+#  material         DIAMOND · head:{player} · head:Notch · texture:<minecraft-heads value> · ia:<id> (ItemsAdder)
+#  name, lore, amount, glow, custom-model-data, admin-only (players don't see it), update (redraw every second)
+#  actions          on click: [open] <menu> [back] [close] [player] cmd [console] cmd [message] text [sound] key
+#                   [LEFT] / [RIGHT] before an action = only for that click
+#  show-if/hide-if  checks: [has_tokens] 100  [has_permission] node  [!has_permission] node  [expression] a >= b
+#  priority         more items in one slot: the first one that can be seen (lowest priority) is shown
+#
+#  ── Products (an item with a price) ──────────────────────
+#  price            tokens it costs (a sale with /tokens sale lowers it, sale: false = never discounted)
+#  give             items given: "DIAMOND 3", {material, name, lore ...} or the exact item saved by the editor
+#  commands         console commands: {player} {uuid}
+#  confirm          true = a confirm menu opens first (menus/confirm.yml)
+#  limit            times each player can buy it, limit-reset: never / daily / weekly / monthly
+#  stock            pieces for the whole server (all servers with MySQL), stock-reset like limit-reset
+#  permission       needed to buy it
+#  Texts: {price} {original_price} {sale} {limit} {bought} {left} {stock} {stock_left} {missing} {tokens}
+#  The lines added under every product (price, click to buy ...) are in "texts" at the end of the file.
+#
+#  ── Format ──────────────────────────────────────────────
+#  Colors    &a &c &e &f &7 ...   &l bold  &o italic  &n underline
+#  Hex       "&#b57bffText"   Gradient "<gradient:#8e2de2:#c471f5>Text</gradient>"   Rainbow "<rainbow>Text</rainbow>"
+#  Tip       always write texts between "quotes"
+#  FlareTokens 3.x shops (menu_title, size, click_commands, [buy(tokens)] ...) work as they are.
+
+enabled: true
+title: "<gradient:#8e2de2:#c471f5><bold>RANKS</bold></gradient>"
+rows: 3
+open-commands: []
+open-permission: ""
+items:
+  # shown instead of the product when the player already has the rank (lower priority wins)
+  vip-owned:
+    slots: "11"
+    priority: 0
+    show-if:
+      - "[has_permission] group.vip"
+    material: "EMERALD"
+    name: "&a&lVIP"
+    lore:
+      - "&7You already have it"
+  vip:
+    slots: "11"
+    priority: 1
+    material: "EMERALD"
+    name: "&a&lVIP"
+    lore:
+      - "&7Colored name, /hat and /kit vip"
+    price: 1500
+    confirm: true
+    limit: 1
+    commands:
+      - "lp user {player} parent add vip"
+  mvp-owned:
+    slots: "15"
+    priority: 0
+    show-if:
+      - "[has_permission] group.mvp"
+    material: "DIAMOND"
+    name: "&b&lMVP"
+    lore:
+      - "&7You already have it"
+  mvp:
+    slots: "15"
+    priority: 1
+    material: "DIAMOND"
+    name: "&b&lMVP"
+    lore:
+      - "&7Everything of VIP, /fly and /kit mvp"
+    price: 4000
+    confirm: true
+    limit: 1
+    permission: "group.vip"
+    commands:
+      - "lp user {player} parent add mvp"
+  back:
+    slots: "22"
+    material: "ARROW"
+    name: "&c← Back"
+    actions:
+      - "[back]"
+decorations:
+  - slots: "0-10,12-14,16-21,23-26"
+    material: "PURPLE_STAINED_GLASS_PANE"
+    name: " "
+    lore: []
+    glow: false
+    admin-only: false
+    actions: []
+
+texts:
+  product:
+    info:
+      - ""
+      - "&7Price: &#b57bff{price} tokens"
+    sale:
+      - "&a&l-{sale}% &8(&7&m{original_price}&8) &7ends in &f{sale_ends}"
+    limit:
+      - "&7Bought: &f{bought}&7/&f{limit}"
+    stock:
+      - "&7Left: &f{stock_left}&7/&f{stock}"
+    can-buy:
+      - ""
+      - "&#b57bffClick to buy"
+    not-enough:
+      - ""
+      - "&cYou need &f{missing} &cmore tokens"
+    no-permission:
+      - ""
+      - "&cYou can't buy this"
+    limit-reached:
+      - ""
+      - "&cYou already bought this"
+    sold-out:
+      - ""
+      - "&cSold out"

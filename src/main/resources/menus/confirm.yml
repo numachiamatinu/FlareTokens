@@ -1,0 +1,51 @@
+#  Flare Tokens · menu 'confirm' (opens before a purchase with confirm: true)
+#  In-game: /tokens editor confirm   (drag & drop · close = save)
+#
+#  enabled         false = menu off for everyone
+#  rows            size of the menu: 1-6 rows (9-54 slots)
+#  open-commands   [wallet] → /wallet opens it   ·   open-permission: "" = everyone
+#  slots           "4"  "19-25"  "0-8,45-53"   (row 1 = 0-8, row 2 = 9-17 ...)
+#  material        DIAMOND · head:{player} · head:Notch · texture:<minecraft-heads value>
+#  admin-only      true = players don't see it
+#  actions         [close] [back] [open] <menu> [player] cmd [console] cmd [message] text [sound] key
+#  Placeholders   {product} {price} {original_price} {sale} and the ones of the product
+#  enabled: false = products are bought at once, without this menu
+#
+#  ── Format ──────────────────────────────────────────────
+#  Colors    &a &c &e &f &7 ...   &l bold  &o italic  &n underline
+#  Hex       "&#b57bffText"   Gradient "<gradient:#8e2de2:#c471f5>Text</gradient>"   Rainbow "<rainbow>Text</rainbow>"
+#  Tip       always write texts between "quotes"
+
+enabled: true
+title: "<gradient:#8e2de2:#c471f5><bold>CONFIRM</bold></gradient>"
+rows: 3
+open-commands: []
+open-permission: ""
+elements:
+  product:
+    # the product being bought is shown here
+    slots: "13"
+    admin-only: false
+  confirm:
+    slots: "10-12"
+    admin-only: false
+    material: "LIME_STAINED_GLASS_PANE"
+    name: "&a&lConfirm"
+    lore:
+      - "&7Buy {product}"
+      - "&7for &#b57bff{price} tokens"
+  cancel:
+    slots: "14-16"
+    admin-only: false
+    material: "RED_STAINED_GLASS_PANE"
+    name: "&c&lCancel"
+    lore:
+      - "&7Back to the shop"
+decorations:
+  - slots: "0-9,17-26"
+    material: "PURPLE_STAINED_GLASS_PANE"
+    name: " "
+    lore: []
+    glow: false
+    admin-only: false
+    actions: []

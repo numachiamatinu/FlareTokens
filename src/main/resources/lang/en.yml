@@ -1,0 +1,195 @@
+#  Flare Tokens · lang/en.yml · chat messages (menu texts are in menus/ and shops/)
+#  One line or a list of lines   ·   "" or [] = off   ·   {prefix} = the prefix below
+#
+#  ── Format ──────────────────────────────────────────────
+#  Colors    &a &c &e &f &7 ...   &l bold  &o italic  &n underline
+#  Hex       "&#b57bffText"   Gradient "<gradient:#8e2de2:#c471f5>Text</gradient>"
+#  Click     "<click:run_command:'/tokens'>Text</click>"   Hover "<hover:show_text:'Text'>Text</hover>"
+#  Every message also understands PlaceholderAPI placeholders.
+
+prefix: "<gradient:#8e2de2:#c471f5><bold>TOKENS</bold></gradient> &7» &7"
+
+general:
+  no-permission: "{prefix}&cYou don't have permission to do this."
+  players-only: "{prefix}&cOnly players can use this."
+  player-not-found: "{prefix}&f{target} &7has never joined the server."
+  invalid-amount: "{prefix}&f{input} &7is not a valid amount."
+  unknown-command: "{prefix}&7Unknown command. <click:run_command:'/{label} help'><hover:show_text:'&7Click to see the commands'>&#b57bff/{label} help</hover></click>"
+  reloaded: "{prefix}&7Files reloaded &8(&7{shops} shops&8)&7."
+  everyone: "everyone"
+  cancelled: "{prefix}&7Another plugin blocked this change."
+  wait: "{prefix}&7Wait a moment before doing that again."
+
+# Shown when a player writes /tokens
+balance:
+  self: "{prefix}&7You have &#b57bff{tokens_commas} &7tokens."
+  other: "{prefix}&f{target} &7has &#b57bff{amount_commas} &7tokens."
+  hint: "{prefix}<click:run_command:'/{label} help'><hover:show_text:'&7Click to see the commands'>&7Commands: &#b57bff/{label} help</hover></click>"
+
+first-join: "{prefix}&7Welcome! You received &#b57bff{amount_commas} &7tokens."
+
+help:
+  # Only the commands the player can use are shown. Lines are clickable.
+  header:
+    - ""
+    - " <gradient:#8e2de2:#c471f5><bold>FLARE TOKENS</bold></gradient> &7v{version}"
+    - ""
+  lines:
+    balance: " <click:suggest_command:'/{label} balance '><hover:show_text:'&7Click to write it'>&#b57bff/{label} balance &7[player]</hover></click> &7- see a balance"
+    pay: " <click:suggest_command:'/{label} pay '><hover:show_text:'&7Click to write it'>&#b57bff/{label} pay &7<player> <amount></hover></click> &7- send tokens"
+    withdraw: " <click:suggest_command:'/{label} withdraw '><hover:show_text:'&7Click to write it'>&#b57bff/{label} withdraw &7<amount></hover></click> &7- tokens into a cheque"
+    menu: " <click:run_command:'/{label} menu'><hover:show_text:'&7Click to open'>&#b57bff/{label} menu</hover></click> &7- your tokens menu"
+    shop: " <click:run_command:'/{label} shop'><hover:show_text:'&7Click to open'>&#b57bff/{label} shop &7[shop]</hover></click> &7- open the shop"
+    top: " <click:run_command:'/{label} top'><hover:show_text:'&7Click to open'>&#b57bff/{label} top</hover></click> &7- richest players"
+    history: " <click:run_command:'/{label} history'><hover:show_text:'&7Click to open'>&#b57bff/{label} history &7[player]</hover></click> &7- tokens got and spent"
+    give: " <click:suggest_command:'/{label} give '><hover:show_text:'&7Click to write it'>&#b57bff/{label} give &7<player|*> <amount> [-s]</hover></click> &7- give tokens"
+    remove: " <click:suggest_command:'/{label} remove '><hover:show_text:'&7Click to write it'>&#b57bff/{label} remove &7<player|*> <amount> [-s]</hover></click> &7- remove tokens"
+    set: " <click:suggest_command:'/{label} set '><hover:show_text:'&7Click to write it'>&#b57bff/{label} set &7<player> <amount> [-s]</hover></click> &7- set a balance"
+    sale: " <click:suggest_command:'/{label} sale '><hover:show_text:'&7Click to write it'>&#b57bff/{label} sale &7<percent> <time> [shop] | stop</hover></click> &7- timed sale"
+    settings: " <click:run_command:'/{label} settings'><hover:show_text:'&7Click to open'>&#b57bff/{label} settings</hover></click> &7- every option in a menu"
+    editor: " <click:run_command:'/{label} editor'><hover:show_text:'&7Click to open'>&#b57bff/{label} editor &7[menu]</hover></click> &7- edit menus and shops in game &8(also /{label} layout)"
+    reload: " <click:run_command:'/{label} reload'><hover:show_text:'&7Click to reload'>&#b57bff/{label} reload</hover></click> &7- reload the files"
+    migrate: " <click:suggest_command:'/{label} migrate '><hover:show_text:'&7Click to write it'>&#b57bff/{label} migrate &7<yaml|sqlite|mysql></hover></click> &7- copy all balances"
+    version: " <click:run_command:'/{label} version'><hover:show_text:'&7Click to check'>&#b57bff/{label} version</hover></click> &7- version and updates"
+  footer:
+    - " &7-s = silent (the player gets no message)"
+    - ""
+
+usage:
+  balance: "{prefix}&7Use &#b57bff/{label} balance [player]"
+  pay: "{prefix}&7Use &#b57bff/{label} pay <player> <amount>"
+  withdraw: "{prefix}&7Use &#b57bff/{label} withdraw <amount>"
+  give: "{prefix}&7Use &#b57bff/{label} give <player|*> <amount> [-s]"
+  remove: "{prefix}&7Use &#b57bff/{label} remove <player|*> <amount> [-s]"
+  set: "{prefix}&7Use &#b57bff/{label} set <player> <amount> [-s]"
+  migrate: "{prefix}&7Use &#b57bff/{label} migrate <yaml|sqlite|mysql>"
+  history: "{prefix}&7Use &#b57bff/{label} history <player> [page]"
+
+admin:
+  give: "{prefix}&7Gave &#b57bff{amount_commas} &7tokens to &f{target}&7. &8({tokens_after})"
+  give-all: "{prefix}&7Gave &#b57bff{amount_commas} &7tokens to &f{count} &7online players."
+  remove: "{prefix}&7Removed &#b57bff{amount_commas} &7tokens from &f{target}&7. &8({tokens_after})"
+  remove-all: "{prefix}&7Removed &#b57bff{amount_commas} &7tokens from &f{count} &7online players."
+  set: "{prefix}&7Balance of &f{target} &7set to &#b57bff{amount_commas}&7."
+  migrate-start: "{prefix}&7Copying every balance to &f{target}&7..."
+  migrate-done: "{prefix}&7Copied &#b57bff{count} &7accounts to &f{target}&7. Set storage.type to &f{target} &7and restart to use it."
+  migrate-same: "{prefix}&7The storage is already &f{target}&7."
+  migrate-error: "{prefix}&cCould not copy the balances: &7{error}"
+
+# Messages to the player whose balance changed
+received:
+  give: "{prefix}&7You received &#b57bff{amount_commas} &7tokens."
+  remove: "{prefix}&#b57bff{amount_commas} &7tokens were removed from your balance."
+  set: "{prefix}&7Your balance is now &#b57bff{amount_commas} &7tokens."
+
+pay:
+  disabled: "{prefix}&7Payments are turned off."
+  sent: "{prefix}&7You sent &#b57bff{amount_commas} &7tokens to &f{target}&7."
+  received: "{prefix}&f{player} &7sent you &#b57bff{amount_commas} &7tokens."
+  self: "{prefix}&7You can't pay yourself."
+  not-enough: "{prefix}&7You don't have &#b57bff{amount_commas} &7tokens &8(&7you have {tokens_commas}&8)&7."
+  min: "{prefix}&7You can send at least &#b57bff{min} &7tokens."
+  offline: "{prefix}&f{target} &7is not online."
+  cooldown: "{prefix}&7Wait &f{seconds}s &7before paying again."
+
+withdraw:
+  disabled: "{prefix}&7Cheques are turned off."
+  done: "{prefix}&7You withdrew &#b57bff{amount_commas} &7tokens into a cheque."
+  not-enough: "{prefix}&7You don't have &#b57bff{amount_commas} &7tokens."
+  min: "{prefix}&7You can withdraw at least &#b57bff{min} &7tokens."
+  inventory-full: "{prefix}&7You need a free slot in your inventory."
+  redeemed: "{prefix}&7You redeemed &#b57bff{amount_commas} &7tokens."
+  creative: "{prefix}&7Cheques can't be redeemed in creative mode."
+
+top:
+  header:
+    - ""
+    - " <gradient:#8e2de2:#c471f5><bold>TOP TOKENS</bold></gradient>"
+    - ""
+  line: " &#b57bff#{position} &f{name} &7- {amount_commas}"
+  empty: " &7Nobody has tokens yet."
+  footer: ""
+
+shop:
+  disabled: "{prefix}&7The shop is turned off."
+  not-found: "{prefix}&7There is no shop called &f{shop}&7."
+  requirements: "{prefix}&7You can't open this shop right now."
+  not-enough: "{prefix}&7You need &#b57bff{price} &7tokens &8(&7{missing} missing&8)&7."
+  not-enough-money: "{prefix}&7You need &#b57bff${price} &7for this."
+  opened-for: "{prefix}&7Opened &f{shop} &7for &f{target}&7."
+  bought: "{prefix}&7You bought {product} &7for &#b57bff{price} &7tokens."
+  no-permission-item: "{prefix}&7You can't buy {product}&7."
+  limit-reached: "{prefix}&7You can't buy {product} &7again for now."
+  sold-out: "{prefix}{product} &7is sold out."
+  price-changed: "{prefix}&7The price of {product} &7changed: check it again."
+  error: "{prefix}&cSomething went wrong, try again in a moment."
+
+version:
+  info:
+    - ""
+    - " <gradient:#8e2de2:#c471f5><bold>FLARE TOKENS</bold></gradient> &7v{version}"
+    - " &7Server: &f{server} {minecraft} &8| &7Java: &f{java} &8| &7Storage: &f{storage}"
+  checking: " &7Checking for updates..."
+  latest: " &aYou are on the latest version."
+  available: " &7New version &#b57bff{latest} &7is out. <click:open_url:'{url}'><hover:show_text:'&7Click to open the download page'>&#b57bff&n[Download]</hover></click>"
+  failed: " &7Could not check for updates right now."
+  check-off: " &7Update check is off &8(&7update-check in config.yml&8)&7."
+
+# Sent to admins (flaretokens.admin) when they join and a new version is out
+update:
+  available: "{prefix}&7FlareTokens &#b57bff{latest} &7is out &8(&7you have {version}&8)&7. <click:open_url:'{url}'><hover:show_text:'&7Click to open the download page'>&#b57bff&n[Download]</hover></click>"
+
+drops:
+  # Default message of drops.yml (when a mob has no "actions")
+  received: "&#b57bff+{amount} tokens"
+
+history:
+  header:
+    - ""
+    - " <gradient:#8e2de2:#c471f5><bold>HISTORY</bold></gradient> &7of &f{target} &8(&7page {page}&8)"
+  line: " &8{date} &#b57bff{sign}{amount} &7→ &f{balance} &8· &7{cause} &8({server})"
+  empty: " &7Nothing here."
+
+# Timed sales (/tokens sale). {percent} {time} {shop}
+sale:
+  started: "{prefix}&a&lSALE! &f-{percent}% &7on {shop} &7for &f{time}&7!"
+  ended: "{prefix}&7The sale is over."
+  every-shop: "every shop"
+  status: "{prefix}&7Sale: &f-{percent}% &7on {shop}&7, ends in &f{time}&7."
+  none: "{prefix}&7There is no sale right now."
+  usage: "{prefix}&7Use &#b57bff/{label} sale <percent> <time> [shop] &7(time: 30m, 2h, 1d) or &#b57bff/{label} sale stop"
+  ask: "{prefix}&7Write &f<percent> <time> [shop] &7in chat, e.g. &f20 2h&7."
+
+# "Write it in chat" of the admin menus
+input:
+  hint: "{prefix}<click:suggest_command:'{current}'><hover:show_text:'&7Click to write it'>&8[&7now: &f{current}&8]</hover></click> &7Write &fcancel &7to go back."
+  cancelled: "{prefix}&7Cancelled."
+
+editor:
+  editing: "{prefix}&7Editing &f{menu}&7: move the items, &fshift + right click &7a slot for the palette, &fshift + left click &7an item for the product settings. Close the menu to save."
+  saved: "{prefix}&7Saved &f{menu}&7."
+  admin-only-on: "{prefix}&7Now only admins see it."
+  admin-only-off: "{prefix}&7Now everybody sees it."
+  ask-price: "{prefix}&7Write the &fprice &7in tokens."
+  ask-limit: "{prefix}&7Write how many times &feach player &7can buy it (0 = no limit)."
+  ask-stock: "{prefix}&7Write how many pieces there are for &fthe whole server &7(0 = no stock)."
+  ask-permission: "{prefix}&7Write the &fpermission &7needed to buy it (none = everybody)."
+  ask-name: "{prefix}&7Write the &fname &7of the item (colors and gradients work)."
+  ask-command: "{prefix}&7Write the &fconsole command &7to run when it's bought ({player} {uuid})."
+  ask-new-menu: "{prefix}&7Write the &fname &7of the new menu (letters, numbers, - and _)."
+  new-menu: "{prefix}&7Created &fshops/{menu}.yml&7. Open it with &#b57bff/tokens shop {menu}&7 or link it from another menu."
+  new-menu-taken: "{prefix}&f{menu} &7is not a valid name or is already used."
+  product-created: "{prefix}&7Product created for &#b57bff{price} &7tokens: buyers get exactly that item."
+  empty-hand: "{prefix}&7Hold the item in your hand first."
+  delete-shift: "{prefix}&7Shift + click to delete it."
+  deleted: "{prefix}&7Deleted &f{item}&7."
+  broken: "{prefix}&cmenus/{menu}.yml has a mistake &7(see the console): fix the file and /tokens reload, then edit it."
+
+settings:
+  changed: "{prefix}&f{option} &7is now &f{value}&7."
+  ask-first-join: "{prefix}&7Write the tokens given on the &ffirst join&7."
+  ask-pay-min: "{prefix}&7Write the &fminimum &7amount of /tokens pay."
+  ask-pay-cooldown: "{prefix}&7Write the &fseconds &7between two payments."
+  ask-confirm-above: "{prefix}&7Products that cost &fat least &7this much ask a confirmation (0 = only confirm: true)."
+  ask-history-days: "{prefix}&7Write the &fdays &7of history to keep (0 = forever)."
+  ask-main-shop: "{prefix}&7Write the &fshop &7opened by /tokens shop."

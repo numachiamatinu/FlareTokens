@@ -1,0 +1,94 @@
+name: FlareTokens
+version: '${project.version}'
+main: dev.tmdevelopment.flaretokens.FlareTokens
+api-version: '1.13'
+author: TMDevelopment
+description: Tokens currency with shops, cheques, mob drops and PlaceholderAPI support.
+softdepend: [PlaceholderAPI, Vault, ItemsAdder, ExecutableItems]
+
+commands:
+  flaretokens:
+    description: FlareTokens main command
+    aliases: [tokens, token, ftokens, ftoken, ft, tmtokens, coins]
+    usage: /tokens help
+
+permissions:
+  flaretokens.player:
+    description: Every player command (balance, pay, withdraw, menu, shop, top, history, redeem cheques)
+    default: true
+    children:
+      flaretokens.command.help: true
+      flaretokens.command.balance: true
+      flaretokens.command.pay: true
+      flaretokens.command.withdraw: true
+      flaretokens.command.menu: true
+      flaretokens.command.shop: true
+      flaretokens.command.top: true
+      flaretokens.command.history: true
+      flaretokens.redeem: true
+  flaretokens.admin:
+    description: Every command (give, remove, set, sale, settings, editor, reload, migrate, version, history and balance of others) and update notices
+    default: op
+    children:
+      flaretokens.player: true
+      flaretokens.command.balance.others: true
+      flaretokens.command.shop.others: true
+      flaretokens.command.give: true
+      flaretokens.command.remove: true
+      flaretokens.command.set: true
+      flaretokens.command.reload: true
+      flaretokens.command.migrate: true
+      flaretokens.command.version: true
+      flaretokens.command.history.others: true
+      flaretokens.command.sale: true
+      flaretokens.command.settings: true
+      flaretokens.command.editor: true
+      flaretokens.bypass.cooldown: true
+  flaretokens.command.help:
+    default: true
+  flaretokens.command.balance:
+    default: true
+  flaretokens.command.pay:
+    default: true
+  flaretokens.command.withdraw:
+    default: true
+  flaretokens.command.shop:
+    default: true
+  flaretokens.command.top:
+    default: true
+  flaretokens.command.menu:
+    default: true
+  flaretokens.command.history:
+    default: true
+  flaretokens.redeem:
+    description: Redeem token cheques
+    default: true
+  flaretokens.redeem.creative:
+    description: Redeem token cheques in creative mode
+    default: false
+  flaretokens.command.balance.others:
+    default: op
+  flaretokens.command.shop.others:
+    default: op
+  flaretokens.command.give:
+    default: op
+  flaretokens.command.remove:
+    default: op
+  flaretokens.command.set:
+    default: op
+  flaretokens.command.reload:
+    default: op
+  flaretokens.command.migrate:
+    default: op
+  flaretokens.command.version:
+    default: op
+  flaretokens.command.history.others:
+    default: op
+  flaretokens.command.sale:
+    default: op
+  flaretokens.command.settings:
+    default: op
+  flaretokens.command.editor:
+    default: op
+  flaretokens.bypass.cooldown:
+    default: op

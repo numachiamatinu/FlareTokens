@@ -1,0 +1,52 @@
+#  Flare Tokens · menu 'top' (/tokens top)
+#  In-game: /tokens editor top   (drag & drop · close = save)
+#
+#  enabled         false = menu off for everyone
+#  rows            size of the menu: 1-6 rows (9-54 slots)
+#  open-commands   [wallet] → /wallet opens it   ·   open-permission: "" = everyone
+#  slots           "4"  "19-25"  "0-8,45-53"   (row 1 = 0-8, row 2 = 9-17 ...)
+#  material        DIAMOND · head:{player} · head:Notch · texture:<minecraft-heads value>
+#  admin-only      true = players don't see it
+#  actions         [close] [back] [open] <menu> [player] cmd [console] cmd [message] text [sound] key
+#  entries        one slot per player of the top list (top.size in config.yml)
+#  Placeholders   entries: {position} {name} {amount} {amount_commas} {amount_formatted}
+#
+#  ── Format ──────────────────────────────────────────────
+#  Colors    &a &c &e &f &7 ...   &l bold  &o italic  &n underline
+#  Hex       "&#b57bffText"   Gradient "<gradient:#8e2de2:#c471f5>Text</gradient>"   Rainbow "<rainbow>Text</rainbow>"
+#  Tip       always write texts between "quotes"
+
+enabled: true
+title: "<gradient:#8e2de2:#c471f5><bold>TOP TOKENS</bold></gradient>"
+rows: 5
+open-commands: []
+open-permission: ""
+elements:
+  entries:
+    slots: "11-15,20-24"
+    admin-only: false
+    material: "head:{name}"
+    name: "&#b57bff#{position} &f{name}"
+    lore:
+      - "&7Tokens: &f{amount_commas}"
+  back:
+    slots: "40"
+    admin-only: false
+    material: "ARROW"
+    name: "&c← Back"
+    lore: []
+decorations:
+  - slots: "0-9,17,18,26,27,35-39,41-44"
+    material: "PURPLE_STAINED_GLASS_PANE"
+    name: " "
+    lore: []
+    glow: false
+    admin-only: false
+    actions: []
+
+# ── Texts of this menu ──
+texts:
+  empty:
+    material: "BARRIER"
+    name: "&7Nobody has tokens yet"
+    lore: []
