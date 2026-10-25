@@ -64,6 +64,8 @@ network:
   server-name: ""
   # Seconds between two checks for balances changed on the other servers
   sync-seconds: 1
+  # Tell players when another server gives or takes their tokens ("You received ...")
+  notify-changes: true
 
 # Every change of balance is saved: /tokens history and the history menu (menus/history.yml).
 history:

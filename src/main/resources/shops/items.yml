@@ -50,7 +50,7 @@ items:
     slots: "12"
     material: "GOLDEN_APPLE"
     amount: 8
-    name: "&e8 Golden apples"
+    name: "&f8 Golden apples"
     price: 300
     give:
       - "GOLDEN_APPLE 8"

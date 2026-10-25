@@ -197,20 +197,23 @@ public final class FlareTokens extends JavaPlugin {
         FileConfiguration cfg = getConfig();
         Configuration defaults = cfg.getDefaults();
         if (defaults == null) return;
-        boolean changed = false;
+        java.util.List<String> missing = new java.util.ArrayList<>();
         for (String key : defaults.getKeys(true)) {
             if (defaults.isConfigurationSection(key)) continue;
             if (key.startsWith("auto-install.plugins.") && cfg.isSet("auto-install.plugins")) continue;
             if (key.startsWith("cheque.item.") && cfg.isSet("cheque.item")) continue;
-            if (!cfg.isSet(key)) {
-                cfg.set(key, defaults.get(key));
-                changed = true;
-            }
+            if (!cfg.isSet(key)) missing.add(key);
         }
-        if (changed) {
+        if (missing.isEmpty()) return;
+        File file = new File(getDataFolder(), "config.yml");
+        String text = dev.tmdevelopment.flaretokens.config.ConfigUpdater.resource(this, "config.yml");
+        if (text != null && dev.tmdevelopment.flaretokens.config.ConfigUpdater.addMissing(file, text, missing, getLogger())) {
+            reloadConfig();
+        } else {
+            for (String key : missing) cfg.set(key, defaults.get(key));
             saveConfig();
-            getLogger().info("config.yml updated with the new options of this version.");
         }
+        getLogger().info("config.yml updated with the new options of this version.");
     }
 
     /** Options changed from the settings menu: applied without closing the menus. */

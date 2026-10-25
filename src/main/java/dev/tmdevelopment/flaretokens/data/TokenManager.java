@@ -3,6 +3,7 @@ package dev.tmdevelopment.flaretokens.data;
 import dev.tmdevelopment.flaretokens.FlareTokens;
 import dev.tmdevelopment.flaretokens.api.TokensChangeEvent;
 import dev.tmdevelopment.flaretokens.util.Compat;
+import dev.tmdevelopment.flaretokens.util.Num;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -190,6 +191,32 @@ public final class TokenManager {
             Long value = storage.get(id);
             sync(() -> {
                 if (!apply(id, version, value == null ? 0 : value) && tries > 0) reload(id, tries - 1);
+            });
+        });
+    }
+
+    /** A change made by another server: new balance, and a message to the player like a give / take here. */
+    private void reloadRemote(UUID id, int tries) {
+        Integer v0 = versions.get(id);
+        if (v0 == null) return;
+        int version = v0;
+        async(() -> {
+            Long value = storage.get(id);
+            sync(() -> {
+                long now = value == null ? 0 : value;
+                Long before = cache.get(id);
+                if (!apply(id, version, now)) {
+                    if (tries > 0) reloadRemote(id, tries - 1);
+                    return;
+                }
+                if (before == null || before == now || !plugin.getConfig().getBoolean("network.notify-changes", true)) return;
+                Player p = Bukkit.getPlayer(id);
+                if (p == null) return;
+                long diff = Math.abs(now - before);
+                String what = now > before ? "give" : "remove";
+                plugin.lang().send(p, "received." + what, "{amount}", String.valueOf(diff), "{amount_commas}", Num.commas(diff),
+                        "{amount_formatted}", Num.shortFormat(diff));
+                if (now > before) dev.tmdevelopment.flaretokens.action.Actions.sound(p, "sounds.receive");
             });
         });
     }
@@ -555,7 +582,7 @@ public final class TokenManager {
             }
             for (Map.Entry<UUID, Long> e : offlineValues.entrySet()) rememberOffline(e.getKey(), e.getValue());
             sync(() -> {
-                for (UUID id : ids) if (cache.containsKey(id)) reload(id, 3);
+                for (UUID id : ids) if (cache.containsKey(id)) reloadRemote(id, 3);
             });
         });
     }

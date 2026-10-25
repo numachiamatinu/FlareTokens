@@ -53,16 +53,20 @@ public final class Lang {
             if (in != null) {
                 YamlConfiguration defaults = YamlConfiguration.loadConfiguration(new InputStreamReader(in, StandardCharsets.UTF_8));
                 cfg.setDefaults(defaults);
-                boolean changed = false;
+                java.util.List<String> missing = new java.util.ArrayList<>();
                 for (String key : defaults.getKeys(true)) {
                     if (defaults.isConfigurationSection(key)) continue;
-                    if (!cfg.isSet(key)) {
-                        cfg.set(key, defaults.get(key));
-                        changed = true;
-                    }
+                    if (!cfg.isSet(key)) missing.add(key);
                 }
-                if (changed) {
-                    cfg.save(file);
+                if (!missing.isEmpty()) {
+                    String text = ConfigUpdater.resource(plugin, "lang/en.yml");
+                    if (text != null && ConfigUpdater.addMissing(file, text, missing, plugin.getLogger())) {
+                        cfg = YamlConfiguration.loadConfiguration(file);
+                        cfg.setDefaults(defaults);
+                    } else {
+                        for (String key : missing) cfg.set(key, defaults.get(key));
+                        cfg.save(file);
+                    }
                     plugin.getLogger().info("New messages added to lang/" + file.getName());
                 }
             }
@@ -82,13 +86,21 @@ public final class Lang {
             if (in == null) return;
             YamlConfiguration defaults = YamlConfiguration.loadConfiguration(new InputStreamReader(in, StandardCharsets.UTF_8));
             admin.setDefaults(defaults);
-            boolean changed = false;
+            java.util.List<String> missing = new java.util.ArrayList<>();
             for (String key : defaults.getKeys(true)) {
                 if (defaults.isConfigurationSection(key) || admin.isSet(key)) continue;
-                admin.set(key, defaults.get(key));
-                changed = true;
+                missing.add(key);
             }
-            if (changed) admin.save(f);
+            if (!missing.isEmpty()) {
+                String text = ConfigUpdater.resource(plugin, "menus/admin.yml");
+                if (text != null && ConfigUpdater.addMissing(f, text, missing, plugin.getLogger())) {
+                    admin = YamlConfiguration.loadConfiguration(f);
+                    admin.setDefaults(defaults);
+                } else {
+                    for (String key : missing) admin.set(key, defaults.get(key));
+                    admin.save(f);
+                }
+            }
         } catch (Exception e) {
             plugin.getLogger().warning("Could not read the default texts of menus/admin.yml: " + e.getMessage());
         }

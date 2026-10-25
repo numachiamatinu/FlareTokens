@@ -37,7 +37,7 @@ public final class Sales {
                 return;
             }
             // other servers of the network can start / stop a sale
-            if (plugin.tokens().storage().shared() && ++polls % 15 == 0) read(true);
+            if (plugin.tokens().storage().shared() && ++polls % 2 == 0) read(true);
         }, 40L, 40L);
     }
 
@@ -155,12 +155,27 @@ public final class Sales {
     /** "1h 20m", "45s"; "-" when there is no sale. */
     public String timeLeft() {
         if (!active()) return "-";
-        long s = Math.max(0, (until - System.currentTimeMillis()) / 1000);
-        long d = s / 86400, h = (s % 86400) / 3600, m = (s % 3600) / 60;
-        if (d > 0) return d + "d " + h + "h";
-        if (h > 0) return h + "h " + m + "m";
-        if (m > 0) return m + "m";
-        return s + "s";
+        return format(until - System.currentTimeMillis());
+    }
+
+    /**
+     * Time left as text: 45s, 1m, 1m 30s, 2h, 1h 30m, 2d 3h. Up to 2 seconds missing count as a full
+     * minute, so a sale seen a moment later by another server still reads "2m", not "1m 59s".
+     */
+    static String format(long ms) {
+        long s = Math.max(1, (Math.max(0, ms) + 999) / 1000);
+        if (s < 58) return s + "s";
+        if (s < 600) {
+            // under 10 minutes: minutes and seconds
+            long m = s / 60, rest = s % 60;
+            if (rest >= 58) return (m + 1) + "m";
+            return rest == 0 ? m + "m" : m + "m " + rest + "s";
+        }
+        long mins = (s + 59) / 60;
+        long d = mins / 1440, h = (mins % 1440) / 60, m = mins % 60;
+        if (d > 0) return h > 0 ? d + "d " + h + "h" : d + "d";
+        if (h > 0) return m > 0 ? h + "h " + m + "m" : h + "h";
+        return m + "m";
     }
 
     /** "30m", "2h", "1d", "1h30m" -> milliseconds, -1 if not valid. */

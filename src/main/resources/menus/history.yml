@@ -79,7 +79,7 @@ texts:
   materials:
     give: "LIME_DYE"
     take: "RED_DYE"
-    set: "YELLOW_DYE"
+    set: "PURPLE_DYE"
     create: "PAPER"
   empty:
     material: "BARRIER"

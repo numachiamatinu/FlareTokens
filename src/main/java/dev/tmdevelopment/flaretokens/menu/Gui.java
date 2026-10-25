@@ -109,7 +109,7 @@ public abstract class Gui implements InventoryHolder {
         int raw = e.getRawSlot();
         if (raw < 0 || raw >= inventory.getSize()) return;
         Consumer<InventoryClickEvent> a = actions.get(raw);
-        if (a != null) {
+        if (a != null && MenuSession.isBuyClick(e.getClick() == null ? "LEFT" : e.getClick().name())) {
             Actions.sound(viewer, "sounds.click");
             a.accept(e);
         }

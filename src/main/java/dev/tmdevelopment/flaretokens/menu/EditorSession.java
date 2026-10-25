@@ -440,6 +440,8 @@ public final class EditorSession implements InventoryHolder {
             if (p != null && p.startsWith(MARK)) continue;
             lore.add(l);
         }
+        // lore written again only when a line was removed: the item stays exactly as it was
+        if (lore.size() == m.getLore().size()) return c;
         m.setLore(lore.isEmpty() ? null : lore);
         c.setItemMeta(m);
         return c;

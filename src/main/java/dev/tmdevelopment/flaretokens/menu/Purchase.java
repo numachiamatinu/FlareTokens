@@ -173,7 +173,7 @@ final class Purchase {
         String[] pairs = s.pairs(item, -1, new String[]{"{uuid}", p.getUniqueId().toString()});
         for (Object o : pr.give) {
             ItemStack stack = o instanceof ItemStack ? ((ItemStack) o).clone()
-                    : ((ItemSpec) o).build(x -> Placeholders.apply(x, p, pairs));
+                    : ((ItemSpec) o).buildReal(x -> Placeholders.apply(x, p, pairs));
             if (stack == null) continue;
             Map<Integer, ItemStack> left = p.getInventory().addItem(stack);
             for (ItemStack it : left.values()) p.getWorld().dropItemNaturally(p.getLocation(), it);

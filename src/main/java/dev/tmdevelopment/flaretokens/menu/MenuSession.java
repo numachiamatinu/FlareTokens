@@ -39,6 +39,8 @@ public final class MenuSession implements InventoryHolder {
     private final Map<Integer, Click> clicks = new HashMap<>();
     private final Map<Integer, MenuItem> shown = new HashMap<>();
     private long lastClick;
+    private long renderedBalance = Long.MIN_VALUE;
+    private int ticks;
 
     /** Purchase counters of the products of this menu (limit per player / stock), read when the menu opens. */
     final Map<String, Integer> bought = new HashMap<>();
@@ -93,6 +95,7 @@ public final class MenuSession implements InventoryHolder {
 
     /** Draws every slot. */
     public void render() {
+        renderedBalance = plugin().tokens().balance(player.getUniqueId());
         clicks.clear();
         shown.clear();
         inventory.clear();
@@ -121,8 +124,16 @@ public final class MenuSession implements InventoryHolder {
         }
     }
 
-    /** Draws again only the items with update: true (called every second). */
+    /**
+     * Called every second: everything again when the balance changed (prices, "you need X more") or, every 5 seconds,
+     * when show-if / hide-if / permissions now pick another item; otherwise only the items with update: true.
+     */
     void tick() {
+        ticks++;
+        if (plugin().tokens().balance(player.getUniqueId()) != renderedBalance || ticks % 5 == 0 && pickChanged()) {
+            render();
+            return;
+        }
         if (!def.hasUpdating) return;
         for (Map.Entry<Integer, List<MenuItem>> e : def.slots.entrySet()) {
             int slot = e.getKey();
@@ -150,6 +161,17 @@ public final class MenuSession implements InventoryHolder {
         Bukkit.getScheduler().runTask(FlareTokens.get(), () -> {
             if (player.isOnline() && plugin().menus().isOpen(player, this)) render();
         });
+    }
+
+    private boolean pickChanged() {
+        for (Map.Entry<Integer, List<MenuItem>> e : def.slots.entrySet()) {
+            int slot = e.getKey();
+            if (slot >= inventory.getSize()) continue;
+            MenuItem item = pick(e.getValue());
+            if (item != null && Builtins.isList(this, item)) continue;
+            if (item != shown.get(slot)) return true;
+        }
+        return false;
     }
 
     private MenuItem pick(List<MenuItem> list) {
@@ -268,6 +290,11 @@ public final class MenuSession implements InventoryHolder {
     void click(int slot, String clickType) {
         Click c = clicks.get(slot);
         if (c == null) return;
+        if (!isBuyClick(clickType)) {
+            // Q, Ctrl+Q, number keys, F, middle and double click: only for items that ask for them ([DROP] ...)
+            MenuItem it = shown.get(slot);
+            if (it == null || it.product != null || !it.clickBy.containsKey(clickType)) return;
+        }
         long now = System.currentTimeMillis();
         long cooldown = plugin().getConfig().getLong("shop.click-cooldown-ms", 200);
         if (now - lastClick < cooldown) return;

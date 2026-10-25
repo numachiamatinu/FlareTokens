@@ -60,6 +60,98 @@ final class YamlPatch {
         return String.join("\n", out);
     }
 
+    /**
+     * Adds a missing option with the comment written above it, copied from the default file.
+     * The option goes at the end of its section (or of the file); the rest of the text is not touched.
+     * Returns the text unchanged when the option is already there or can't be found in the defaults.
+     */
+    static String addMissing(String text, String defaults, String path) {
+        String[] lines = text.split("\n", -1);
+        String[] def = defaults.split("\n", -1);
+        if (find(lines, path) >= 0) return text;
+        // the highest part of the path that is missing: "a.b.c" with "a" present and "a.b" missing -> "a.b"
+        String[] parts = path.split("\\.");
+        String missing = null;
+        String parent = null;
+        StringBuilder sb = new StringBuilder();
+        for (String part : parts) {
+            String before = sb.length() == 0 ? null : sb.toString();
+            if (sb.length() > 0) sb.append('.');
+            sb.append(part);
+            if (find(lines, sb.toString()) < 0) {
+                missing = sb.toString();
+                parent = before;
+                break;
+            }
+        }
+        if (missing == null) return text;
+        int at = find(def, missing);
+        if (at < 0) return text;
+        int keyIndent = indent(def[at]);
+        // comment lines right above the option
+        int from = at;
+        while (from > 0 && def[from - 1].trim().startsWith("#")) from--;
+        // the option and everything under it (deeper lines, its list items)
+        int to = at + 1;
+        while (to < def.length) {
+            String l = def[to];
+            String t = l.trim();
+            if (t.isEmpty()) {
+                int n = to + 1;
+                while (n < def.length && def[n].trim().isEmpty()) n++;
+                if (n < def.length && indent(def[n]) > keyIndent && !def[n].trim().startsWith("#")) {
+                    to = n;
+                    continue;
+                }
+                break;
+            }
+            if (indent(l) > keyIndent || t.startsWith("- ") && indent(l) == keyIndent) {
+                to++;
+                continue;
+            }
+            break;
+        }
+        List<String> block = new ArrayList<>();
+        int shift = 0;
+        int insert;
+        if (parent == null) {
+            insert = lines.length;
+            while (insert > 0 && lines[insert - 1].trim().isEmpty()) insert--;
+            block.add("");
+        } else {
+            int p = find(lines, parent);
+            int pd = find(def, parent);
+            if (p < 0 || pd < 0) return text;
+            int pIndent = indent(lines[p]);
+            shift = pIndent - indent(def[pd]);
+            insert = p + 1;
+            for (int i = p + 1; i < lines.length; i++) {
+                String t = lines[i].trim();
+                if (t.isEmpty()) continue;
+                if (indent(lines[i]) <= pIndent && !(t.startsWith("- ") && indent(lines[i]) == pIndent)) break;
+                insert = i + 1;
+            }
+        }
+        for (int i = from; i < to; i++) block.add(reindent(def[i], shift));
+        List<String> out = new ArrayList<>();
+        for (int i = 0; i < insert; i++) out.add(lines[i]);
+        out.addAll(block);
+        for (int i = insert; i < lines.length; i++) out.add(lines[i]);
+        if (parent == null && (insert == lines.length || !lines[insert].trim().isEmpty())) {
+            // keep a final new line
+            if (!out.get(out.size() - 1).isEmpty()) out.add("");
+        }
+        while (out.size() > 1 && out.get(out.size() - 1).isEmpty() && out.get(out.size() - 2).trim().isEmpty()) out.remove(out.size() - 1);
+        return String.join("\n", out);
+    }
+
+    private static String reindent(String line, int shift) {
+        if (shift == 0 || line.trim().isEmpty()) return line;
+        if (shift > 0) return repeat(' ', shift) + line;
+        int remove = Math.min(-shift, indent(line));
+        return line.substring(remove);
+    }
+
     private static int find(String[] lines, String path) {
         String[] want = path.split("\\.");
         List<String> stack = new ArrayList<>();

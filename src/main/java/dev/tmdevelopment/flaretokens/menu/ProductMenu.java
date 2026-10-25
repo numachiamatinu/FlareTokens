@@ -39,17 +39,25 @@ final class ProductMenu extends Gui {
         return editor.section(key);
     }
 
-    private void saveAndRefresh() {
+    /**
+     * Changes the item in the file as it is now. The editor saves the file when this menu opens (and keeps a new
+     * copy of it), so a section read while drawing can be an old copy: always read it again here.
+     */
+    private void change(java.util.function.Consumer<ConfigurationSection> edit) {
+        editor.reloadDef();
+        ConfigurationSection now = s();
+        if (now == null) {
+            editor.openLater();
+            return;
+        }
+        edit.accept(now);
         editor.def = plugin.menus().save(editor.def);
         openLater();
     }
 
     /** Asks a value in chat, then comes back here. */
-    private void ask(String prompt, String current, java.util.function.Consumer<String> answer) {
-        plugin.chatInput().ask(viewer, prompt, current, text -> {
-            answer.accept(text);
-            saveAndRefresh();
-        }, this::openLater);
+    private void ask(String prompt, String current, java.util.function.BiConsumer<ConfigurationSection, String> answer) {
+        plugin.chatInput().ask(viewer, prompt, current, text -> change(now -> answer.accept(now, text)), this::openLater);
     }
 
     private static String next(String now) {
@@ -76,88 +84,83 @@ final class ProductMenu extends Gui {
 
         set(10, button("GOLD_INGOT", "gui.product.price", "{value}", product ? Num.commas(price) : "-"), e -> {
             if (e.isRightClick() && product) {
-                s.set("price", null);
-                saveAndRefresh();
+                change(now -> now.set("price", null));
                 return;
             }
-            ask("editor.ask-price", product ? String.valueOf(price) : "", text -> {
+            ask("editor.ask-price", product ? String.valueOf(price) : "", (now, text) -> {
                 long v = Num.parse(text);
                 if (v < 0) lang().send(viewer, "general.invalid-amount", "{input}", text);
-                else s.set("price", v);
+                else now.set("price", v);
             });
         });
         boolean confirm = s.getBoolean("confirm", false);
-        set(11, button(confirm ? "LIME_DYE" : "GRAY_DYE", "gui.product.confirm", "{value}", onOff(confirm)), e -> {
-            s.set("confirm", !confirm);
-            saveAndRefresh();
-        });
+        set(11, button(confirm ? "LIME_DYE" : "GRAY_DYE", "gui.product.confirm", "{value}", onOff(confirm)),
+                e -> change(now -> now.set("confirm", !now.getBoolean("confirm", false))));
         int limit = s.getInt("limit", 0);
         String limitReset = s.getString("limit-reset", "never").toLowerCase(Locale.ROOT);
         set(12, button("HOPPER", "gui.product.limit", "{value}", limit <= 0 ? "-" : String.valueOf(limit),
                 "{reset}", lang().raw("gui.product.resets." + limitReset)), e -> {
             if (e.isRightClick()) {
-                s.set("limit-reset", next(limitReset));
-                saveAndRefresh();
+                change(now -> now.set("limit-reset", next(now.getString("limit-reset", "never").toLowerCase(Locale.ROOT))));
                 return;
             }
-            ask("editor.ask-limit", String.valueOf(limit), text -> s.set("limit", (int) Math.max(0, Num.parse(text))));
+            ask("editor.ask-limit", String.valueOf(limit), (now, text) -> now.set("limit", (int) Math.max(0, Num.parse(text))));
         });
         int stock = s.getInt("stock", 0);
         String stockReset = s.getString("stock-reset", "never").toLowerCase(Locale.ROOT);
         set(13, button("CHEST", "gui.product.stock", "{value}", stock <= 0 ? "-" : String.valueOf(stock),
                 "{reset}", lang().raw("gui.product.resets." + stockReset)), e -> {
             if (e.isRightClick()) {
-                s.set("stock-reset", next(stockReset));
-                saveAndRefresh();
+                change(now -> now.set("stock-reset", next(now.getString("stock-reset", "never").toLowerCase(Locale.ROOT))));
                 return;
             }
-            ask("editor.ask-stock", String.valueOf(stock), text -> s.set("stock", (int) Math.max(0, Num.parse(text))));
+            ask("editor.ask-stock", String.valueOf(stock), (now, text) -> now.set("stock", (int) Math.max(0, Num.parse(text))));
         });
         String perm = s.getString("permission", "");
         set(14, button("TRIPWIRE_HOOK", "gui.product.permission", "{value}", perm == null || perm.isEmpty() ? "-" : perm), e -> {
             if (e.isRightClick()) {
-                s.set("permission", "");
-                saveAndRefresh();
+                change(now -> now.set("permission", ""));
                 return;
             }
-            ask("editor.ask-permission", perm, text -> s.set("permission", text.equalsIgnoreCase("none") ? "" : text.trim()));
+            ask("editor.ask-permission", perm, (now, text) -> now.set("permission", text.equalsIgnoreCase("none") ? "" : text.trim()));
         });
         boolean sale = s.getBoolean("sale", true);
-        set(15, button(sale ? "LIME_DYE" : "GRAY_DYE", "gui.product.sale", "{value}", onOff(sale)), e -> {
-            s.set("sale", !sale);
-            saveAndRefresh();
-        });
+        set(15, button(sale ? "LIME_DYE" : "GRAY_DYE", "gui.product.sale", "{value}", onOff(sale)),
+                e -> change(now -> now.set("sale", !now.getBoolean("sale", true))));
         boolean adminOnly = s.getBoolean("admin-only", false);
-        set(16, button(adminOnly ? "REDSTONE_TORCH" : "LEVER", "gui.product.admin-only", "{value}", onOff(adminOnly)), e -> {
-            s.set("admin-only", !adminOnly);
-            saveAndRefresh();
-        });
+        set(16, button(adminOnly ? "REDSTONE_TORCH" : "LEVER", "gui.product.admin-only", "{value}", onOff(adminOnly)),
+                e -> change(now -> now.set("admin-only", !now.getBoolean("admin-only", false))));
 
         set(20, button("OAK_SIGN", "gui.product.name", "{value}", String.valueOf(s.getString("name", ""))),
-                e -> ask("editor.ask-name", s.getString("name", ""), text -> s.set("name", text)));
+                e -> ask("editor.ask-name", s.getString("name", ""), (now, text) -> now.set("name", text)));
         List<String> cmds = new ArrayList<>(s.getStringList("commands"));
         set(21, button("COMMAND_BLOCK", "gui.product.commands", "{value}", String.valueOf(cmds.size()),
                 "{last}", cmds.isEmpty() ? "-" : cmds.get(cmds.size() - 1)), e -> {
             if (e.isRightClick()) {
-                if (!cmds.isEmpty()) cmds.remove(cmds.size() - 1);
-                s.set("commands", cmds);
-                saveAndRefresh();
+                change(now -> {
+                    List<String> list = new ArrayList<>(now.getStringList("commands"));
+                    if (!list.isEmpty()) list.remove(list.size() - 1);
+                    now.set("commands", list);
+                });
                 return;
             }
-            ask("editor.ask-command", "", text -> {
+            ask("editor.ask-command", "", (now, text) -> {
                 String c = text.trim();
                 if (c.startsWith("/")) c = c.substring(1);
-                cmds.add(c);
-                s.set("commands", cmds);
+                List<String> list = new ArrayList<>(now.getStringList("commands"));
+                list.add(c);
+                now.set("commands", list);
             });
         });
         List<?> give = s.getList("give");
         List<Object> giveList = give == null ? new ArrayList<Object>() : new ArrayList<Object>(give);
         set(22, button("CHEST_MINECART", "gui.product.give", "{value}", String.valueOf(giveList.size())), e -> {
             if (e.isRightClick()) {
-                if (!giveList.isEmpty()) giveList.remove(giveList.size() - 1);
-                s.set("give", giveList);
-                saveAndRefresh();
+                change(now -> {
+                    List<Object> list = now.getList("give") == null ? new ArrayList<Object>() : new ArrayList<Object>(now.getList("give"));
+                    if (!list.isEmpty()) list.remove(list.size() - 1);
+                    now.set("give", list);
+                });
                 return;
             }
             ItemStack hand = Compat.hand(viewer);
@@ -165,15 +168,19 @@ final class ProductMenu extends Gui {
                 lang().send(viewer, "editor.empty-hand");
                 return;
             }
-            giveList.add(EditorSession.clean(hand));
-            s.set("give", giveList);
-            saveAndRefresh();
+            ItemStack item = EditorSession.clean(hand);
+            change(now -> {
+                List<Object> list = now.getList("give") == null ? new ArrayList<Object>() : new ArrayList<Object>(now.getList("give"));
+                list.add(item);
+                now.set("give", list);
+            });
         });
         set(24, button("BARRIER", "gui.product.delete"), e -> {
             if (!e.isShiftClick()) {
                 lang().send(viewer, "editor.delete-shift");
                 return;
             }
+            editor.reloadDef();
             editor.def.yaml.set("items." + key, null);
             editor.def = plugin.menus().save(editor.def);
             lang().send(viewer, "editor.deleted", "{item}", key);

@@ -114,6 +114,7 @@ public final class SettingsMenu extends Gui {
                     lang().send(viewer, "shop.not-found", "{shop}", text.trim());
                 } else if (ConfigWriter.set(plugin, "config.yml", "shop.main-shop", text.trim())) {
                     plugin.applyConfig();
+                    lang().send(viewer, "settings.changed", "{option}", "shop.main-shop", "{value}", text.trim());
                 }
                 openLater();
             }, this::openLater);

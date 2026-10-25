@@ -197,8 +197,13 @@ public final class TMDStats {
 
     // ------------------------------------------------------------------ data
 
+    private static final java.util.regex.Pattern MC_VERSION = java.util.regex.Pattern.compile("^(\\d+\\.\\d+(?:\\.\\d+)?)");
+
     private static String mcVersion() {
-        String v = Bukkit.getBukkitVersion(); // e.g. 1.21.1-R0.1-SNAPSHOT
+        // e.g. 1.21.1-R0.1-SNAPSHOT -> 1.21.1, 26.3.build.223 -> 26.3
+        String v = Bukkit.getBukkitVersion();
+        java.util.regex.Matcher m = MC_VERSION.matcher(v);
+        if (m.find()) return m.group(1);
         int dash = v.indexOf('-');
         return dash > 0 ? v.substring(0, dash) : v;
     }

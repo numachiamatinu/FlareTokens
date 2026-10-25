@@ -104,13 +104,23 @@ public final class ItemSpec {
         return !materialSet;
     }
 
-    /** Builds the item; every text goes through the resolver (placeholders) and then the text engine. */
-    @SuppressWarnings("deprecation")
+    /** Builds the item for a menu; every text goes through the resolver (placeholders) and then the text engine. */
     public ItemStack build(UnaryOperator<String> resolve) {
+        return build(resolve, true);
+    }
+
+    /** Builds an item given to a player: no hidden flags and no extra data, so it stacks with normal items. */
+    public ItemStack buildReal(UnaryOperator<String> resolve) {
+        return build(resolve, false);
+    }
+
+    @SuppressWarnings("deprecation")
+    private ItemStack build(UnaryOperator<String> resolve, boolean menu) {
         if (resolve == null) resolve = UnaryOperator.identity();
         ItemStack item = base(resolve);
         item.setAmount(amount);
         if (damage > 0) item.setDurability((short) damage);
+        if (!menu && name == null && lore.isEmpty() && modelData == 0 && !glow) return item;
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return item;
         if (name != null) meta.setDisplayName(Text.item(resolve.apply(name)));
@@ -125,7 +135,7 @@ public final class ItemSpec {
         }
         Compat.modelData(meta, modelData);
         if (glow) Compat.glow(item, meta);
-        Compat.hideFlags(meta);
+        if (menu) Compat.hideFlags(meta);
         item.setItemMeta(meta);
         return item;
     }
@@ -217,6 +227,8 @@ public final class ItemSpec {
     private static void setOwner(SkullMeta meta, String name) {
         if (name == null || name.isEmpty()) return;
         org.bukkit.entity.Player online = Bukkit.getPlayerExact(name);
+        if (online != null && Compat.copySkin(meta, online)) return;
+        if (!Compat.skinLookups()) return; // offline-mode server: a plain head instead of a failed lookup
         if (online != null) {
             try {
                 SkullMeta.class.getMethod("setOwningPlayer", org.bukkit.OfflinePlayer.class).invoke(meta, online);

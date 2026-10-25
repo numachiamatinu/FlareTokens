@@ -354,6 +354,46 @@ public final class Compat {
         }
     }
 
+    private static Boolean skinLookups;
+
+    /**
+     * Can the server look up the skin of a player? Not on offline-mode servers without BungeeCord / Velocity:
+     * the ids are not Mojang ids, every lookup fails and Paper writes a warning for each head.
+     */
+    public static boolean skinLookups() {
+        if (skinLookups != null) return skinLookups;
+        boolean ok = Bukkit.getOnlineMode();
+        if (!ok) {
+            try {
+                ok = Bukkit.spigot().getConfig().getBoolean("settings.bungeecord", false);
+            } catch (Throwable ignored) {
+            }
+        }
+        if (!ok) {
+            java.io.File paper = new java.io.File("config", "paper-global.yml");
+            java.io.File old = new java.io.File("paper.yml");
+            if (paper.isFile()) ok = org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(paper).getBoolean("proxies.velocity.enabled", false);
+            if (!ok && old.isFile()) ok = org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(old).getBoolean("settings.velocity-support.enabled", false);
+        }
+        skinLookups = ok;
+        return ok;
+    }
+
+    /** Copies the skin an online player already has (also from SkinsRestorer) on a head, without lookups. 1.18.1+. */
+    public static boolean copySkin(SkullMeta meta, Player p) {
+        try {
+            Class<?> type = Class.forName("org.bukkit.profile.PlayerProfile");
+            Object profile = Player.class.getMethod("getPlayerProfile").invoke(p);
+            if (!type.isInstance(profile)) return false;
+            Object textures = type.getMethod("getTextures").invoke(profile);
+            if (Boolean.TRUE.equals(Class.forName("org.bukkit.profile.PlayerTextures").getMethod("isEmpty").invoke(textures))) return false;
+            SkullMeta.class.getMethod("setOwnerProfile", type).invoke(meta, profile);
+            return true;
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
     /** Puts a texture (base64 value from minecraft-heads.com) on a head. */
     public static void setTexture(SkullMeta meta, String base64) {
         UUID id = UUID.nameUUIDFromBytes(base64.getBytes(StandardCharsets.UTF_8));
@@ -527,8 +567,67 @@ public final class Compat {
     /** Inventory titles longer than 32 characters crash 1.8. */
     public static String menuTitle(String legacy) {
         if (Ver.atLeast(9) || legacy.length() <= 32) return legacy;
-        String t = legacy.substring(0, 32);
-        if (t.endsWith("§")) t = t.substring(0, 31);
+        // 1.8: 32 characters, color codes included. Gradients repeat the codes on every letter: write each change once
+        String compact = compactLegacy(legacy);
+        if (compact.length() <= 32) return compact;
+        // still too long: one style for the whole title
+        String first = leadingCodes(compact);
+        String single = first + compact.replaceAll("\u00a7.", "");
+        return cut(single.length() <= 32 ? single : compact, 32);
+    }
+
+    /** Legacy text with a color/format code only where the style really changes. */
+    static String compactLegacy(String s) {
+        StringBuilder out = new StringBuilder(s.length());
+        char color = 0, shownColor = 0;
+        StringBuilder fmt = new StringBuilder();
+        String shownFmt = "";
+        boolean started = false;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c == '\u00a7' && i + 1 < s.length()) {
+                char k = Character.toLowerCase(s.charAt(++i));
+                if ((k >= '0' && k <= '9') || (k >= 'a' && k <= 'f')) {
+                    color = k;
+                    fmt.setLength(0);
+                } else if (k == 'r') {
+                    color = 0;
+                    fmt.setLength(0);
+                } else if ("klmno".indexOf(k) >= 0 && fmt.indexOf(String.valueOf(k)) < 0) {
+                    fmt.append(k);
+                }
+                continue;
+            }
+            String f = fmt.toString();
+            boolean same = color == shownColor && f.equals(shownFmt);
+            // the color of a space can't be seen (unless underlined or struck through)
+            if (c == ' ' && started && f.equals(shownFmt) && f.indexOf('m') < 0 && f.indexOf('n') < 0) same = true;
+            if (!same || !started && (color != 0 || !f.isEmpty())) {
+                if (started && color == shownColor && f.startsWith(shownFmt)) {
+                    for (char x : f.substring(shownFmt.length()).toCharArray()) out.append('\u00a7').append(x);
+                } else {
+                    if (color != 0 || started) out.append('\u00a7').append(color == 0 ? 'r' : color);
+                    for (char x : f.toCharArray()) out.append('\u00a7').append(x);
+                }
+                shownColor = color;
+                shownFmt = f;
+            }
+            started = true;
+            out.append(c);
+        }
+        return out.toString();
+    }
+
+    private static String leadingCodes(String s) {
+        int i = 0;
+        while (i + 1 < s.length() && s.charAt(i) == '\u00a7') i += 2;
+        return s.substring(0, i);
+    }
+
+    private static String cut(String s, int max) {
+        if (s.length() <= max) return s;
+        String t = s.substring(0, max);
+        if (t.endsWith("\u00a7")) t = t.substring(0, max - 1);
         return t;
     }
 }
