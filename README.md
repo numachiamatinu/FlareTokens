@@ -131,8 +131,11 @@ an item to show it to admins only, **shift + left click** an item for its price,
 
 ## Network
 
+FlareTokens goes on every game server of the network (Spigot, Paper...), not on the BungeeCord / Velocity proxy.
 Put the same MySQL database in `storage` on every server: balances, history, purchase limits, stock and sales
-are shared. A change made on one server shows on the others within `network.sync-seconds` (1 by default).
+are shared. A change made on one server shows on the others within `network.sync-seconds` (1 by default),
+and the player gets the usual "You received ..." message (`network.notify-changes`). Sales reach every server
+within a few seconds.
 Give `network.server-name` a name on each server to see it in the history. Web stores (Tebex, CraftingStore...)
 can run `tokens give {username} 1000` or `tokens give {uuid} 1000`: it works with the player offline or on
 another server.
@@ -167,8 +170,9 @@ FlareTokensAPI.fetchTokens(uuid).thenAccept(t -> { });     // anyone, also offli
 This plugin sends anonymous usage statistics to TMDevelopment every 30 minutes:
 plugin version, Minecraft version, server software, Java version, CPU core count,
 online player count, online/offline mode and a random server id generated on your server.
-FlareTokens also sends three anonymous settings of its own: the storage type (yaml, sqlite, mysql or mariadb),
-the number of shops and whether mob drops are on or off.
+The country of the server is derived from its IP address (only the country code is kept).
+Each plugin can also send a few anonymous settings of its own
+(FlareTokens: storage type, number of shops and whether drops are on).
 No player names or UUIDs, no IP addresses (they are never stored), no chat, world or config data.
 Data of a server is deleted 30 days after its last report; only anonymous totals are kept.
 We use it to know which versions to support.

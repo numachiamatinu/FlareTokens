@@ -1,5 +1,34 @@
 # Changelog — FlareTokens
 
+## 4.0.1
+
+### Fixed
+- The Confirm button of the confirm menu also bought with Q, Ctrl+Q, the number keys and F.
+  Now every menu (shops, plugin menus, settings) reacts only to left, right and shift clicks.
+  Shop items that ask for another click on purpose (`[DROP]`, `[MIDDLE]`...) still get it.
+- Items given by a product didn't stack with the same items got in another way.
+- On 1.8 the titles with a gradient were cut after a few letters.
+- Editor: the first value written in chat in the product settings (price, limit, stock, permission...) was not saved,
+  and the first click on confirm / sale / admins only could be lost.
+- Updates added the new options to `config.yml`, `lang/en.yml` and `menus/admin.yml` by saving the whole file again:
+  on 1.8 - 1.17 every comment was lost, on newer versions the quotes changed. New options are now added with their
+  comment, in their section, and the rest of the file is not touched.
+
+### Improved
+- When another server of the network gives or takes tokens, the player gets the "You received ..." message
+  (`network.notify-changes: true`, added to your config by itself).
+- A sale started or stopped on one server reaches the others within a few seconds (was about 30).
+- The time left of a sale reads the same on every server: "1m", "1m 30s", "2h", "1h 30m"
+  (before, another server could announce a 2m sale as "1m", and a 1m sale showed "60s").
+- Open menus update by themselves when the balance changes (price lines, "you need X more"), and every
+  few seconds when `show-if` / `hide-if` / permissions now show another item.
+- Offline-mode servers without BungeeCord / Velocity no longer look up the skins of player heads:
+  no more warnings in the console. Online players still show their skin when the server knows it
+  (for example with SkinsRestorer).
+- Items sold with the editor are given exactly as they were in your hand.
+- Changing the main shop from `/tokens settings` now confirms it in chat.
+- Example files: the history icon for "set" and the golden apples name use the plugin colors.
+
 ## 4.0.0
 FlareTokens is back: rebuilt from scratch, faster, and now the coin of your whole server or network,
 with an in-game store you build with drag and drop.
