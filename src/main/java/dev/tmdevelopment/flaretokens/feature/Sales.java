@@ -21,6 +21,8 @@ public final class Sales {
     private volatile long until;
     private volatile String scope = "*";
     private volatile String id;
+    /** How long the sale was started for (ms), 0 when unknown (sales saved by 4.0.1). */
+    private volatile long length;
     private BukkitTask task;
     private int polls;
 
@@ -77,6 +79,7 @@ public final class Sales {
                 return;
             }
             id = f[0];
+            length = lengthOf(f[0]);
             percent = Math.max(0, Math.min(100, Integer.parseInt(f[1])));
             until = u;
             scope = f.length > 3 && !f[3].isEmpty() ? f[3] : "*";
@@ -88,7 +91,10 @@ public final class Sales {
 
     /** Starts a sale now (and on every server of the network). */
     public void begin(int pct, long millis, String shop) {
-        id = UUID.randomUUID().toString().substring(0, 8);
+        // the id also carries the length, so every server announces the same time ("1m 30s", not the time left
+        // when it reads the sale); older versions read the id as it is
+        length = Math.max(0, millis);
+        id = UUID.randomUUID().toString().substring(0, 8) + "." + length;
         percent = Math.max(1, Math.min(100, pct));
         until = System.currentTimeMillis() + millis;
         scope = shop == null || shop.isEmpty() ? "*" : shop.toLowerCase(Locale.ROOT);
@@ -122,8 +128,19 @@ public final class Sales {
     private void announce(String key) {
         String text = plugin.lang().raw(key);
         if (text == null || text.isEmpty()) return;
-        Lang.broadcast(Placeholders.apply(text, null, "{percent}", String.valueOf(percent), "{time}", timeLeft(),
+        Lang.broadcast(Placeholders.apply(text, null, "{percent}", String.valueOf(percent), "{time}", length > 0 ? format(length) : timeLeft(),
                 "{shop}", scope.equals("*") ? plugin.lang().raw("sale.every-shop") : scope));
+    }
+
+    /** Length written in the id ("a1b2c3d4.90000"), 0 for ids without it. */
+    static long lengthOf(String id) {
+        int dot = id == null ? -1 : id.lastIndexOf('.');
+        if (dot < 0) return 0;
+        try {
+            return Math.max(0, Long.parseLong(id.substring(dot + 1)));
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
     public boolean active() {

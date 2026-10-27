@@ -50,7 +50,7 @@ help:
     editor: " <click:run_command:'/{label} editor'><hover:show_text:'&7Click to open'>&#b57bff/{label} editor &7[menu]</hover></click> &7- edit menus and shops in game &8(also /{label} layout)"
     reload: " <click:run_command:'/{label} reload'><hover:show_text:'&7Click to reload'>&#b57bff/{label} reload</hover></click> &7- reload the files"
     migrate: " <click:suggest_command:'/{label} migrate '><hover:show_text:'&7Click to write it'>&#b57bff/{label} migrate &7<yaml|sqlite|mysql></hover></click> &7- copy all balances"
-    version: " <click:run_command:'/{label} version'><hover:show_text:'&7Click to check'>&#b57bff/{label} version</hover></click> &7- version and updates"
+    version: " <click:run_command:'/{label} about'><hover:show_text:'&7Click to open'>&#b57bff/{label} about</hover></click> &7- plugin info and updates"
   footer:
     - " &7-s = silent (the player gets no message)"
     - ""
@@ -101,6 +101,8 @@ withdraw:
   redeemed: "{prefix}&7You redeemed &#b57bff{amount_commas} &7tokens."
   creative: "{prefix}&7Cheques can't be redeemed in creative mode."
 
+# /tokens top in chat. PlaceholderAPI placeholders in "line" are of the player of that line,
+# e.g. a rank before the name: " &#b57bff#{position} %luckperms_prefix%&f{name} &7- {amount_commas}"
 top:
   header:
     - ""
@@ -124,16 +126,39 @@ shop:
   price-changed: "{prefix}&7The price of {product} &7changed: check it again."
   error: "{prefix}&cSomething went wrong, try again in a moment."
 
-version:
-  info:
+# /tokens about (also /tokens version): plugin info for admins
+about:
+  header:
     - ""
-    - " <gradient:#8e2de2:#c471f5><bold>FLARE TOKENS</bold></gradient> &7v{version}"
-    - " &7Server: &f{server} {minecraft} &8| &7Java: &f{java} &8| &7Storage: &f{storage}"
+    - " <gradient:#8e2de2:#c471f5><bold>FLARE TOKENS</bold></gradient>"
   checking: " &7Checking for updates..."
-  latest: " &aYou are on the latest version."
-  available: " &7New version &#b57bff{latest} &7is out. <click:open_url:'{url}'><hover:show_text:'&7Click to open the download page'>&#b57bff&n[Download]</hover></click>"
-  failed: " &7Could not check for updates right now."
-  check-off: " &7Update check is off &8(&7update-check in config.yml&8)&7."
+  # first line, depends on the update check
+  latest: " &7Plugin version: &a{version} &8- &alatest version!"
+  outdated: " &7Plugin version: &c{version} &8- &c&lOUTDATED! &7Please update to &#b57bff{latest} <click:open_url:'{url}'><hover:show_text:'&7Click to open the download page'>&#b57bff&n[Download]</hover></click>"
+  failed: " &7Plugin version: &f{version} &8- &7could not check for updates right now"
+  check-off: " &7Plugin version: &f{version} &8- &7update check is off"
+  info:
+    - " &7Server version: &f{minecraft} &8({server})"
+    - " &7Java: &f{java} &8| &7Storage: &f{storage}"
+    - " &7Update notifier: {notifier}"
+    - " &7Plugin hooks: {hooks}"
+    - " &7Permissions: <click:run_command:'/{label} about permissions'><hover:show_text:'&7Click to see every permission'>&#b57bff&n[Show list]</hover></click>"
+  notifier-on: "&atrue"
+  notifier-off: "&cfalse"
+  # {hook} = name of the plugin; hooked = installed and in use, missing = not installed
+  hooked: "&a{hook}"
+  missing: "&8{hook}"
+  separator: "&7, "
+  permissions:
+    header:
+      - ""
+      - " <gradient:#8e2de2:#c471f5><bold>FLARE TOKENS</bold></gradient> &7permissions"
+    line: " <click:copy_to_clipboard:'{permission}'><hover:show_text:'&7Click to copy'>&#b57bff{permission}</hover></click> &8- &7{description} &8({default})"
+    # who has it without a permissions plugin
+    everyone: "everyone"
+    op: "op"
+    not-op: "not op"
+    nobody: "nobody"
 
 # Sent to admins (flaretokens.admin) when they join and a new version is out
 update:

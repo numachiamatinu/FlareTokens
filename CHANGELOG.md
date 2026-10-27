@@ -1,5 +1,20 @@
 # Changelog — FlareTokens
 
+## 4.0.2
+
+### New
+- Ranks in the top: PlaceholderAPI placeholders in the top menu (`menus/top.yml`) and in `/tokens top chat`
+  are now of the player of each line, not of the one looking at it. For a rank before the name:
+  `"&#b57bff#{position} %luckperms_prefix%&f{name}"`. With LuckPerms the rank shows also for offline players.
+- `/tokens about` (also `/tokens version`): plugin version in green when it is the latest or in red
+  "OUTDATED! Please update!" with the download link, server version and type, Java and storage,
+  update notifier on/off, plugin hooks (PlaceholderAPI, LuckPerms, Vault, ItemsAdder, ExecutableItems)
+  and a clickable list of every permission with what it does. The new texts are added to `lang/en.yml` by themselves.
+
+### Fixed
+- A sale started on one server of the network was announced on the others with the time left when they got it
+  ("1m 29s" or "57s" instead of "1m 30s" / "1m"). Now every server announces the same time.
+
 ## 4.0.1
 
 ### Fixed

@@ -36,7 +36,8 @@
 - **Hex colors, gradients, rainbow, click & hover** in every text (MiniMessage tags and `&` codes),
   on 1.8–1.15 hex becomes the nearest color
 - **PlaceholderAPI** placeholders and a small **API** for other plugins
-- **Update check**: `/tokens version` and a message to admins when a new version is out
+- **`/tokens about`**: version (green = latest, red = outdated), server, update notifier, plugin hooks and every
+  permission in one place, plus a message to admins when a new version is out
 - **Safe updates**: new options and messages are added to your files, your edits are never touched
 
 ## Compatibility
@@ -46,7 +47,7 @@
 | Server | Spigot, Paper, Purpur and other forks |
 | Versions | 1.8.8 → 26.x (one jar for all) |
 | Java | 8 or newer (the plugin; 26.x servers themselves need Java 25) |
-| Optional | PlaceholderAPI, Vault + an economy plugin (for `[buy(money)]`), ItemsAdder |
+| Optional | PlaceholderAPI, Vault + an economy plugin (for `[buy(money)]`), LuckPerms (ranks in the top), ItemsAdder, ExecutableItems |
 
 ## Installation
 
@@ -86,7 +87,7 @@ Messages moved to `lang/en.yml`: if you edited the old `locale/en.yml`, copy you
 | `/tokens editor [menu]` | `flaretokens.command.editor` | edit menus and shops in game |
 | `/tokens migrate <yaml\|sqlite\|mysql>` | `flaretokens.command.migrate` | copy all balances to another storage |
 | `/tokens reload` | `flaretokens.command.reload` | reload the files |
-| `/tokens version` | `flaretokens.command.version` | version and update check |
+| `/tokens about` | `flaretokens.command.version` | version, update check, server, hooks and permissions (also `/tokens version`) |
 
 Aliases: `/flaretokens`, `/token`, `/ftokens`, `/ftoken`, `/ft`, `/tmtokens`, `/coins`. `-s` = the player gets no message.
 Amounts accept `1k`, `2.5m`. `<player>` can also be a UUID (web stores). `flaretokens.admin` gives every permission,
@@ -154,6 +155,10 @@ another server.
 
 Inside the plugin files: `{player}` `{tokens}` `{tokens_formatted}` `{tokens_commas}` `{missing:500}`.
 
+**Ranks in the top:** in the top menu (`menus/top.yml`) and in `/tokens top chat` the PlaceholderAPI placeholders are
+of the player of each line, so a rank goes before the name with `"&#b57bff#{position} %luckperms_prefix%&f{name}"`.
+With LuckPerms it works for offline players too.
+
 ## API
 
 ```java
@@ -180,7 +185,7 @@ Turn it off for FlareTokens with `stats: false` in `config.yml`, or for all TMDe
 in `plugins/TMDStats/config.yml` (`enabled: false`).
 
 FlareTokens also checks GitHub for new versions (at startup, when an admin joins, at most every 6 hours,
-and with `/tokens version`). It only reads the latest release: nothing is sent.
+and with `/tokens about`). It only reads the latest release: nothing is sent.
 Turn it off with `update-check: false` in `config.yml`.
 
 ## Building

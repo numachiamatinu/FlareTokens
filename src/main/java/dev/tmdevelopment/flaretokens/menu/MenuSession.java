@@ -91,6 +91,11 @@ public final class MenuSession implements InventoryHolder {
         return new Actions.Context("shop " + def.id, this, "{menu}", def.id);
     }
 
+    /** true while the player still has this menu open. */
+    boolean isOpen() {
+        return player.isOnline() && Compat.topHolder(player) == this;
+    }
+
     // ------------------------------------------------------------------ drawing
 
     /** Draws every slot. */
@@ -200,12 +205,17 @@ public final class MenuSession implements InventoryHolder {
 
     /** The item as the player sees it, with the product lines when it is for sale. */
     ItemStack build(MenuItem item, int slot, String[] extra) {
+        return build(item, slot, extra, player);
+    }
+
+    /** Same, with the placeholders of another player (the top list: each entry is its own player). */
+    ItemStack build(MenuItem item, int slot, String[] extra, org.bukkit.OfflinePlayer who) {
         String[] pairs = pairs(item, slot, extra);
         ItemStack stack;
         if (item.exact != null && item.spec.materialUnset()) {
             stack = item.exact.clone();
         } else {
-            stack = item.spec.build(s -> Placeholders.apply(s, player, pairs));
+            stack = item.spec.build(s -> Placeholders.apply(s, who, pairs));
         }
         if (item.product != null && stack != null) {
             List<String> add = productLines(item);

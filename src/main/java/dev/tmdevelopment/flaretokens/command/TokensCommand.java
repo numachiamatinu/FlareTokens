@@ -29,7 +29,7 @@ import java.util.UUID;
 public final class TokensCommand implements CommandExecutor, TabCompleter, org.bukkit.event.Listener {
 
     private static final List<String> SUBS = Arrays.asList("help", "balance", "pay", "withdraw", "menu", "shop", "top", "history",
-            "give", "remove", "set", "sale", "settings", "editor", "layout", "reload", "migrate", "version");
+            "give", "remove", "set", "sale", "settings", "editor", "layout", "reload", "migrate", "about", "version");
 
     private final FlareTokens plugin;
     private final Map<UUID, Long> payCooldown = new HashMap<>();
@@ -144,7 +144,7 @@ public final class TokensCommand implements CommandExecutor, TabCompleter, org.b
             case "version":
             case "ver":
             case "about":
-                version(sender, l);
+                version(sender, l, args);
                 return true;
             case "menu":
             case "gui":
@@ -432,18 +432,32 @@ public final class TokensCommand implements CommandExecutor, TabCompleter, org.b
             }
         }
         List<Storage.Account> top = plugin.tokens().top();
-        lang().send(sender, "top.header", "{label}", label);
-        if (top.isEmpty()) {
-            lang().send(sender, "top.empty");
-        } else {
-            int size = Math.min(top.size(), Math.max(1, plugin.getConfig().getInt("top.size", 10)));
-            for (int i = 0; i < size; i++) {
-                Storage.Account a = top.get(i);
-                lang().send(sender, "top.line", "{position}", String.valueOf(i + 1), "{name}", a.name == null || a.name.isEmpty() ? "?" : a.name,
-                        "{amount}", String.valueOf(a.tokens), "{amount_commas}", Num.commas(a.tokens), "{amount_formatted}", Num.shortFormat(a.tokens));
-            }
+        int size = Math.min(top.size(), Math.max(1, plugin.getConfig().getInt("top.size", 10)));
+        List<java.util.UUID> offline = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            Storage.Account a = top.get(i);
+            if (a.uuid != null && Bukkit.getPlayer(a.uuid) == null) offline.add(a.uuid);
         }
-        lang().send(sender, "top.footer", "{label}", label);
+        Runnable send = () -> {
+            if (sender instanceof Player && !((Player) sender).isOnline()) return;
+            lang().send(sender, "top.header", "{label}", label);
+            if (top.isEmpty()) {
+                lang().send(sender, "top.empty");
+            } else {
+                for (int i = 0; i < size; i++) {
+                    Storage.Account a = top.get(i);
+                    String[] pairs = {"{position}", String.valueOf(i + 1), "{name}", a.name == null || a.name.isEmpty() ? "?" : a.name,
+                            "{amount}", String.valueOf(a.tokens), "{amount_commas}", Num.commas(a.tokens), "{amount_formatted}", Num.shortFormat(a.tokens)};
+                    // PlaceholderAPI placeholders (%luckperms_prefix%...) are of the player of this line
+                    if (a.uuid != null) lang().sendAbout(sender, Bukkit.getOfflinePlayer(a.uuid), "top.line", pairs);
+                    else lang().send(sender, "top.line", pairs);
+                }
+            }
+            lang().send(sender, "top.footer", "{label}", label);
+        };
+        // offline players: LuckPerms loads their rank first
+        if (!dev.tmdevelopment.flaretokens.util.Placeholders.papi()
+                || !dev.tmdevelopment.flaretokens.hook.LuckPermsHook.load(offline, send)) send.run();
     }
 
     // ------------------------------------------------------------------ admin
@@ -659,33 +673,87 @@ public final class TokensCommand implements CommandExecutor, TabCompleter, org.b
 
     // ------------------------------------------------------------------ version
 
-    private void version(CommandSender sender, String label) {
+    private void version(CommandSender sender, String label, String[] args) {
         if (!perm(sender, "version")) {
             lang().send(sender, "general.no-permission");
             return;
         }
-        String software = Bukkit.getName();
-        lang().send(sender, "version.info", "{label}", label, "{server}", software, "{minecraft}", dev.tmdevelopment.flaretokens.util.Ver.text(),
-                "{java}", System.getProperty("java.version", "?"), "{storage}", plugin.tokens().storage().type());
-        dev.tmdevelopment.flaretokens.feature.UpdateChecker u = plugin.updates();
-        if (!u.enabled()) {
-            lang().send(sender, "version.check-off");
+        if (args.length > 1 && args[1].toLowerCase(Locale.ROOT).startsWith("perm")) {
+            permissions(sender);
             return;
         }
-        lang().send(sender, "version.checking");
+        dev.tmdevelopment.flaretokens.feature.UpdateChecker u = plugin.updates();
+        boolean[] answered = {false};
         u.check(sender.hasPermission("flaretokens.admin"), state -> {
+            answered[0] = true;
             if (sender instanceof Player && !((Player) sender).isOnline()) return;
-            switch (state) {
-                case AVAILABLE:
-                    lang().send(sender, "version.available", "{latest}", u.latest(), "{url}", dev.tmdevelopment.flaretokens.feature.UpdateChecker.PAGE);
+            about(sender, label, state);
+        });
+        if (!answered[0]) lang().send(sender, "about.checking");
+    }
+
+    /** /tokens about: version (green = latest, red = outdated), server, update notifier, hooks, permissions. */
+    private void about(CommandSender sender, String label, dev.tmdevelopment.flaretokens.feature.UpdateChecker.State state) {
+        dev.tmdevelopment.flaretokens.feature.UpdateChecker u = plugin.updates();
+        String[] base = {"{label}", label, "{version}", u.current(), "{latest}", u.latest() == null ? "?" : u.latest(),
+                "{url}", dev.tmdevelopment.flaretokens.feature.UpdateChecker.PAGE};
+        lang().send(sender, "about.header", base);
+        switch (state) {
+            case AVAILABLE:
+                lang().send(sender, "about.outdated", base);
+                break;
+            case LATEST:
+                lang().send(sender, "about.latest", base);
+                break;
+            case OFF:
+                lang().send(sender, "about.check-off", base);
+                break;
+            default:
+                lang().send(sender, "about.failed", base);
+        }
+        String sep = lang().raw("about.separator");
+        StringBuilder hooks = new StringBuilder();
+        String[][] list = {{"PlaceholderAPI", String.valueOf(dev.tmdevelopment.flaretokens.util.Placeholders.papi())},
+                {"LuckPerms", String.valueOf(dev.tmdevelopment.flaretokens.hook.LuckPermsHook.installed())},
+                {"Vault", String.valueOf(dev.tmdevelopment.flaretokens.hook.VaultHook.available())},
+                {"ItemsAdder", String.valueOf(enabled("ItemsAdder"))},
+                {"ExecutableItems", String.valueOf(enabled("ExecutableItems"))}};
+        for (String[] h : list) {
+            if (hooks.length() > 0) hooks.append(sep);
+            hooks.append(lang().raw(Boolean.parseBoolean(h[1]) ? "about.hooked" : "about.missing").replace("{hook}", h[0]));
+        }
+        lang().send(sender, "about.info", "{label}", label, "{version}", u.current(),
+                "{server}", Bukkit.getName(), "{minecraft}", dev.tmdevelopment.flaretokens.util.Ver.text(),
+                "{java}", System.getProperty("java.version", "?"), "{storage}", plugin.tokens().storage().type(),
+                "{notifier}", lang().raw(u.enabled() ? "about.notifier-on" : "about.notifier-off"), "{hooks}", hooks.toString());
+    }
+
+    private static boolean enabled(String plugin) {
+        org.bukkit.plugin.Plugin p = Bukkit.getPluginManager().getPlugin(plugin);
+        return p != null && p.isEnabled();
+    }
+
+    /** Every permission of plugin.yml with its description and who has it by default. */
+    private void permissions(CommandSender sender) {
+        lang().send(sender, "about.permissions.header");
+        for (org.bukkit.permissions.Permission perm : plugin.getDescription().getPermissions()) {
+            String def;
+            switch (perm.getDefault()) {
+                case TRUE:
+                    def = lang().raw("about.permissions.everyone");
                     break;
-                case LATEST:
-                    lang().send(sender, "version.latest");
+                case OP:
+                    def = lang().raw("about.permissions.op");
+                    break;
+                case NOT_OP:
+                    def = lang().raw("about.permissions.not-op");
                     break;
                 default:
-                    lang().send(sender, "version.failed");
+                    def = lang().raw("about.permissions.nobody");
             }
-        });
+            String desc = perm.getDescription() == null || perm.getDescription().isEmpty() ? "-" : perm.getDescription();
+            lang().send(sender, "about.permissions.line", "{permission}", perm.getName(), "{description}", desc, "{default}", def);
+        }
     }
 
     private static String nameOf(Storage.Account acc, String fallback) {
@@ -701,7 +769,7 @@ public final class TokensCommand implements CommandExecutor, TabCompleter, org.b
         if (args.length == 1) {
             List<String> out = new ArrayList<>();
             for (String s : SUBS) {
-                String need = s.equals("layout") ? "editor" : s;
+                String need = s.equals("layout") ? "editor" : s.equals("about") ? "version" : s;
                 if ((s.equals("help") || perm(sender, need)) && s.startsWith(args[0].toLowerCase(Locale.ROOT))) out.add(s);
             }
             return out;
@@ -720,6 +788,10 @@ public final class TokensCommand implements CommandExecutor, TabCompleter, org.b
                 }
                 case "sale":
                     return filter(Arrays.asList("10", "20", "50", "stop"), args[1]);
+                case "about":
+                case "version":
+                case "ver":
+                    return perm(sender, "version") ? filter(Collections.singletonList("permissions"), args[1]) : Collections.<String>emptyList();
                 case "migrate":
                     return filter(Arrays.asList("yaml", "sqlite", "mysql"), args[1]);
                 case "withdraw":
@@ -727,7 +799,6 @@ public final class TokensCommand implements CommandExecutor, TabCompleter, org.b
                 case "top":
                 case "reload":
                 case "help":
-                case "version":
                 case "menu":
                 case "settings":
                     return Collections.emptyList();

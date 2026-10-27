@@ -4,7 +4,7 @@ main: dev.tmdevelopment.flaretokens.FlareTokens
 api-version: '1.13'
 author: TMDevelopment
 description: Tokens currency with shops, cheques, mob drops and PlaceholderAPI support.
-softdepend: [PlaceholderAPI, Vault, ItemsAdder, ExecutableItems]
+softdepend: [PlaceholderAPI, Vault, LuckPerms, ItemsAdder, ExecutableItems]
 
 commands:
   flaretokens:
@@ -45,20 +45,28 @@ permissions:
       flaretokens.command.editor: true
       flaretokens.bypass.cooldown: true
   flaretokens.command.help:
+    description: /tokens help
     default: true
   flaretokens.command.balance:
+    description: "/tokens and /tokens balance: your balance"
     default: true
   flaretokens.command.pay:
+    description: "/tokens pay: send tokens to another player"
     default: true
   flaretokens.command.withdraw:
+    description: "/tokens withdraw: turn tokens into a cheque"
     default: true
   flaretokens.command.shop:
+    description: "/tokens shop: open the shops"
     default: true
   flaretokens.command.top:
+    description: "/tokens top: richest players"
     default: true
   flaretokens.command.menu:
+    description: /tokens menu
     default: true
   flaretokens.command.history:
+    description: "/tokens history: your own history"
     default: true
   flaretokens.redeem:
     description: Redeem token cheques
@@ -67,28 +75,41 @@ permissions:
     description: Redeem token cheques in creative mode
     default: false
   flaretokens.command.balance.others:
+    description: "/tokens balance <player>: balance of other players"
     default: op
   flaretokens.command.shop.others:
+    description: "/tokens shop <shop> <player>: open a shop for another player"
     default: op
   flaretokens.command.give:
+    description: /tokens give
     default: op
   flaretokens.command.remove:
+    description: /tokens remove
     default: op
   flaretokens.command.set:
+    description: /tokens set
     default: op
   flaretokens.command.reload:
+    description: /tokens reload
     default: op
   flaretokens.command.migrate:
+    description: "/tokens migrate: copy all balances to another storage"
     default: op
   flaretokens.command.version:
+    description: "/tokens about (also /tokens version): plugin info and update check"
     default: op
   flaretokens.command.history.others:
+    description: "/tokens history <player>: history of other players"
     default: op
   flaretokens.command.sale:
+    description: "/tokens sale: start and stop timed sales"
     default: op
   flaretokens.command.settings:
+    description: /tokens settings
     default: op
   flaretokens.command.editor:
+    description: "/tokens editor: edit menus and shops in game"
     default: op
   flaretokens.bypass.cooldown:
+    description: No wait between two clicks in the shops
     default: op

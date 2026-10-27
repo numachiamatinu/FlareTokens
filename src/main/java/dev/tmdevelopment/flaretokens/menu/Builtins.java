@@ -38,14 +38,22 @@ final class Builtins {
         if (s.def.id.equals(TOP)) {
             List<Storage.Account> top = FlareTokens.get().tokens().top();
             int n = Math.min(slots.size(), top.size());
+            List<java.util.UUID> offline = new java.util.ArrayList<>();
             for (int i = 0; i < n; i++) {
                 Storage.Account a = top.get(i);
                 String name = a.name == null || a.name.isEmpty() ? "?" : a.name;
                 String[] extra = {"{position}", String.valueOf(i + 1), "{name}", name, "{amount}", String.valueOf(a.tokens),
                         "{amount_commas}", Num.commas(a.tokens), "{amount_formatted}", Num.shortFormat(a.tokens)};
-                s.set(slots.get(i), s.build(item, slots.get(i), extra), null);
+                // PlaceholderAPI placeholders (%luckperms_prefix%...) are of the player of this entry, not of the viewer
+                org.bukkit.OfflinePlayer who = a.uuid == null ? s.player : org.bukkit.Bukkit.getOfflinePlayer(a.uuid);
+                if (a.uuid != null && !who.isOnline()) offline.add(a.uuid);
+                s.set(slots.get(i), s.build(item, slots.get(i), extra, who), null);
             }
             if (top.isEmpty()) empty(s, item);
+            // offline players: draw again once LuckPerms has loaded their rank
+            if (Placeholders.papi()) dev.tmdevelopment.flaretokens.hook.LuckPermsHook.load(offline, () -> {
+                if (s.isOpen()) s.render();
+            });
             return;
         }
         // history

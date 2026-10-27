@@ -10,6 +10,8 @@
 #  actions         [close] [back] [open] <menu> [player] cmd [console] cmd [message] text [sound] key
 #  entries        one slot per player of the top list (top.size in config.yml)
 #  Placeholders   entries: {position} {name} {amount} {amount_commas} {amount_formatted}
+#                 PlaceholderAPI placeholders are of the player of each entry: rank before the name with
+#                 name: "&#b57bff#{position} %luckperms_prefix%&f{name}" (also for offline players)
 #
 #  ── Format ──────────────────────────────────────────────
 #  Colors    &a &c &e &f &7 ...   &l bold  &o italic  &n underline
