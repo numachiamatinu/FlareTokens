@@ -412,6 +412,11 @@ public final class TokensCommand implements CommandExecutor, TabCompleter, org.b
             lang().send(sender, "general.no-permission");
             return;
         }
+        if (forOther && plugin.menus().def(shop) == null) {
+            // the error goes to who wrote the command, not to the player
+            lang().send(sender, "shop.not-found", "{shop}", shop);
+            return;
+        }
         boolean opened = plugin.menus().open(target, shop, !forOther);
         if (opened && forOther) lang().send(sender, "shop.opened-for", "{shop}", shop, "{target}", target.getName());
     }
@@ -456,8 +461,8 @@ public final class TokensCommand implements CommandExecutor, TabCompleter, org.b
             lang().send(sender, "top.footer", "{label}", label);
         };
         // offline players: LuckPerms loads their rank first
-        if (!dev.tmdevelopment.flaretokens.util.Placeholders.papi()
-                || !dev.tmdevelopment.flaretokens.hook.LuckPermsHook.load(offline, send)) send.run();
+        boolean placeholders = String.join("\n", lang().lines("top.line")).contains("%");
+        if (!placeholders || !dev.tmdevelopment.flaretokens.hook.LuckPermsHook.load(offline, send)) send.run();
     }
 
     // ------------------------------------------------------------------ admin
@@ -505,21 +510,31 @@ public final class TokensCommand implements CommandExecutor, TabCompleter, org.b
                 return;
             }
             String name = nameOf(acc, targetName);
-            java.util.concurrent.CompletableFuture<Long> f;
-            if (what.equals("give")) f = plugin.tokens().give(acc.uuid, name, amount, cause);
-            else if (what.equals("remove")) f = plugin.tokens().take(acc.uuid, name, amount, false, cause);
-            else f = plugin.tokens().set(acc.uuid, name, amount, cause);
-            f.thenAccept(after -> {
-                if (after == dev.tmdevelopment.flaretokens.data.TokenManager.CANCELLED) {
-                    lang().send(sender, "general.cancelled");
-                    return;
-                }
-                lang().send(sender, "admin." + what, "{target}", name, "{amount}", String.valueOf(amount), "{amount_commas}", ac,
-                        "{tokens_after}", Num.commas(Math.max(0, after)));
-                Player online = Bukkit.getPlayer(acc.uuid);
-                if (online != null && !silent && !(sender instanceof Player && ((Player) sender).getUniqueId().equals(acc.uuid) && what.equals("set"))) {
-                    notify(online, what, what.equals("set") ? Math.max(0, after) : amount);
-                }
+            // remove: the balance before is needed to say what was really taken (offline players: read it first)
+            java.util.concurrent.CompletableFuture<Long> balanceBefore = !what.equals("remove")
+                    ? java.util.concurrent.CompletableFuture.completedFuture(0L)
+                    : plugin.tokens().isLoaded(acc.uuid) ? java.util.concurrent.CompletableFuture.completedFuture(plugin.tokens().balance(acc.uuid))
+                    : plugin.tokens().fetch(acc.uuid);
+            balanceBefore.whenComplete((known, error) -> {
+                long before = known == null ? -1 : known;
+                java.util.concurrent.CompletableFuture<Long> f;
+                if (what.equals("give")) f = plugin.tokens().give(acc.uuid, name, amount, cause);
+                else if (what.equals("remove")) f = plugin.tokens().take(acc.uuid, name, amount, false, cause);
+                else f = plugin.tokens().set(acc.uuid, name, amount, cause);
+                f.thenAccept(after -> {
+                    if (after == dev.tmdevelopment.flaretokens.data.TokenManager.CANCELLED) {
+                        lang().send(sender, "general.cancelled");
+                        return;
+                    }
+                    // remove: what was really taken (he may have had less)
+                    long shown = what.equals("remove") && before >= 0 ? Math.max(0, Math.min(amount, before - Math.max(0, after))) : amount;
+                    lang().send(sender, "admin." + what, "{target}", name, "{amount}", String.valueOf(shown), "{amount_commas}", Num.commas(shown),
+                            "{tokens_after}", Num.commas(Math.max(0, after)));
+                    Player online = Bukkit.getPlayer(acc.uuid);
+                    if (online != null && !silent && !(sender instanceof Player && ((Player) sender).getUniqueId().equals(acc.uuid) && what.equals("set"))) {
+                        notify(online, what, what.equals("set") ? Math.max(0, after) : shown);
+                    }
+                });
             });
         });
     }

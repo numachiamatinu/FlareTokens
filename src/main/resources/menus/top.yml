@@ -11,7 +11,9 @@
 #  entries        one slot per player of the top list (top.size in config.yml)
 #  Placeholders   entries: {position} {name} {amount} {amount_commas} {amount_formatted}
 #                 PlaceholderAPI placeholders are of the player of each entry: rank before the name with
-#                 name: "&#b57bff#{position} %luckperms_prefix%&f{name}" (also for offline players)
+#                 name: "&#b57bff#{position} %luckperms_prefix%&f{name}"
+#                 %luckperms_prefix%, %luckperms_suffix% and %luckperms_primary_group_name% also work for
+#                 offline players (other plugins' placeholders: it depends on that plugin)
 #
 #  ── Format ──────────────────────────────────────────────
 #  Colors    &a &c &e &f &7 ...   &l bold  &o italic  &n underline

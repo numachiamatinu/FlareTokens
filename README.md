@@ -157,7 +157,8 @@ Inside the plugin files: `{player}` `{tokens}` `{tokens_formatted}` `{tokens_com
 
 **Ranks in the top:** in the top menu (`menus/top.yml`) and in `/tokens top chat` the PlaceholderAPI placeholders are
 of the player of each line, so a rank goes before the name with `"&#b57bff#{position} %luckperms_prefix%&f{name}"`.
-With LuckPerms it works for offline players too.
+`%luckperms_prefix%`, `%luckperms_suffix%` and `%luckperms_primary_group_name%` work for offline players too
+(they come straight from LuckPerms); for placeholders of other plugins it depends on that plugin.
 
 ## API
 

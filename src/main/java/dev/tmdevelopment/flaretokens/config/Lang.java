@@ -53,6 +53,10 @@ public final class Lang {
             if (in != null) {
                 YamlConfiguration defaults = YamlConfiguration.loadConfiguration(new InputStreamReader(in, StandardCharsets.UTF_8));
                 cfg.setDefaults(defaults);
+                if (replaceOld(file, defaults)) {
+                    cfg = YamlConfiguration.loadConfiguration(file);
+                    cfg.setDefaults(defaults);
+                }
                 java.util.List<String> missing = new java.util.ArrayList<>();
                 for (String key : defaults.getKeys(true)) {
                     if (defaults.isConfigurationSection(key)) continue;
@@ -75,6 +79,59 @@ public final class Lang {
         }
         prefix = cfg.getString("prefix", "");
         loadAdmin();
+    }
+
+    /** Default texts of older versions that changed. Replaced only when the file still has them exactly. */
+    private static final String[][] OLD_DEFAULTS = {
+            // 4.0.0 - 4.0.1: /tokens version became /tokens about in 4.0.2
+            {"help.lines.version", " <click:run_command:'/{label} version'><hover:show_text:'&7Click to check'>&#b57bff/{label} version</hover></click> &7- version and updates"},
+    };
+
+    /** @return true if the file was changed */
+    private boolean replaceOld(File file, YamlConfiguration defaults) {
+        try {
+            String text = new String(java.nio.file.Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
+            String changed = replaceOld(text, cfg, defaults);
+            if (changed == null) return false;
+            dev.tmdevelopment.flaretokens.util.J8.write(file.toPath(), changed, StandardCharsets.UTF_8);
+            plugin.getLogger().info("Updated the default messages of an older version in lang/" + file.getName());
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /** The text with the old default messages replaced, null when there is nothing to replace (or it can't be done safely). */
+    static String replaceOld(String text, YamlConfiguration user, YamlConfiguration defaults) {
+        try {
+            String changed = text.replace("\r\n", "\n");
+            List<String> done = new ArrayList<>();
+            for (String[] old : OLD_DEFAULTS) {
+                String now = defaults.getString(old[0]);
+                if (now == null || !user.isSet(old[0]) || !old[1].equals(user.getString(old[0]))) continue;
+                String written = YamlPatch.quote(now);
+                String next = YamlPatch.setKeepComment(changed, old[0], written);
+                if (next == null) next = YamlPatch.set(changed, old[0], written);
+                if (next.equals(changed)) continue;
+                changed = next;
+                done.add(old[0]);
+            }
+            if (done.isEmpty()) return null;
+            // the file must read the same as before, apart from the new texts
+            YamlConfiguration before = new YamlConfiguration();
+            before.loadFromString(text);
+            YamlConfiguration after = new YamlConfiguration();
+            after.loadFromString(changed);
+            for (String key : before.getKeys(true)) {
+                if (before.isConfigurationSection(key)) continue;
+                Object want = done.contains(key) ? defaults.getString(key) : before.get(key);
+                if (!java.util.Objects.equals(String.valueOf(want), String.valueOf(after.get(key)))) return null;
+            }
+            if (after.getKeys(true).size() != before.getKeys(true).size()) return null;
+            return changed;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private void loadAdmin() {

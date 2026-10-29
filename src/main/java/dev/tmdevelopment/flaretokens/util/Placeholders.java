@@ -70,6 +70,10 @@ public final class Placeholders {
                 }
             }
         }
+        // offline players: the LuckPerms expansion gives nothing, their rank comes from LuckPerms itself
+        if (p != null && s.contains("%luckperms_") && (!papi || !p.isOnline())) {
+            s = dev.tmdevelopment.flaretokens.hook.LuckPermsHook.fill(p.getUniqueId(), s);
+        }
         if (papi && p != null && s.indexOf('%') >= 0) s = PapiHook.apply(p, s);
         return s;
     }

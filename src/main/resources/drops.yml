@@ -19,7 +19,8 @@ ignore-spawner-mobs: true
 disabled-worlds:
   - "world_example"
 
-# Multiply the drop for players with a permission (the highest one counts)
+# Multiply the drop for players with a permission (the highest one counts).
+# Give it with your permissions plugin: OPs don't get it by themselves.
 multipliers:
   flaretokens.multiplier.vip: 1.5
   flaretokens.multiplier.mvp: 2

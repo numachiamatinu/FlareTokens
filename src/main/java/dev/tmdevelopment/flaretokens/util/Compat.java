@@ -554,10 +554,19 @@ public final class Compat {
      * Holder of the menu a player has open. InventoryView is a class before 1.21 and an interface after,
      * so it is only reached by reflection.
      */
+    private static java.lang.reflect.Method openInventory;
+    private static java.lang.reflect.Method topInventory;
+
     public static org.bukkit.inventory.InventoryHolder topHolder(Player p) {
         try {
-            Object view = Player.class.getMethod("getOpenInventory").invoke(p);
-            Object top = view.getClass().getMethod("getTopInventory").invoke(view);
+            // InventoryView is a class on old versions and an interface on new ones: looked up on the API type,
+            // never on the server's own class (it may not be public)
+            if (topInventory == null) {
+                openInventory = org.bukkit.entity.HumanEntity.class.getMethod("getOpenInventory");
+                topInventory = Class.forName("org.bukkit.inventory.InventoryView").getMethod("getTopInventory");
+            }
+            Object view = openInventory.invoke(p);
+            Object top = view == null ? null : topInventory.invoke(view);
             return top instanceof org.bukkit.inventory.Inventory ? ((org.bukkit.inventory.Inventory) top).getHolder() : null;
         } catch (Throwable t) {
             return null;

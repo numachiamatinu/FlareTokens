@@ -93,7 +93,7 @@ public final class MenuSession implements InventoryHolder {
 
     /** true while the player still has this menu open. */
     boolean isOpen() {
-        return player.isOnline() && Compat.topHolder(player) == this;
+        return player.isOnline() && plugin().menus().isOpen(player, this);
     }
 
     // ------------------------------------------------------------------ drawing

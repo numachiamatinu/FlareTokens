@@ -43,6 +43,8 @@ public final class MenuManager {
     private final Map<String, MenuDef> shops = new LinkedHashMap<>();
     private final Map<String, MenuDef> builtins = new LinkedHashMap<>();
     private final Map<UUID, MenuSession> open = new ConcurrentHashMap<>();
+    /** Open commands in use now: command -> menu. Paper keeps old commands until a restart, they check this. */
+    private final Map<String, String> active = new ConcurrentHashMap<>();
     private final List<Command> registered = new ArrayList<>();
     private BukkitTask ticker;
     private YamlConfiguration shopTexts;
@@ -197,6 +199,21 @@ public final class MenuManager {
 
     /** Writes a menu file: the explanations of the jar on top, then the values. */
     void save(File f, String resource, YamlConfiguration yml) {
+        // only what changed is written: comments, quotes and layout of the file stay as they are
+        if (f.isFile()) {
+            try {
+                String old = new String(java.nio.file.Files.readAllBytes(f.toPath()), StandardCharsets.UTF_8);
+                String patched = dev.tmdevelopment.flaretokens.config.YamlKeeper.patch(old, yml);
+                if (patched != null) {
+                    if (!patched.equals(old.replace("\r\n", "\n"))) {
+                        dev.tmdevelopment.flaretokens.util.J8.write(f.toPath(), patched, StandardCharsets.UTF_8);
+                    }
+                    return;
+                }
+            } catch (Exception ignored) {
+                // written again below
+            }
+        }
         String header = Headers.of(plugin, resource);
         // 1.18+ keeps the header of the loaded file in saveToString: written only once, from the jar
         String body = Headers.split(yml.saveToString())[1];
@@ -491,7 +508,12 @@ public final class MenuManager {
         for (String c : mainCmds) put(wanted, c, mainShop());
         for (MenuDef m : shops.values()) for (String c : m.openCommands()) put(wanted, c, m.id());
         for (MenuDef m : builtins.values()) for (String c : m.openCommands()) put(wanted, c, m.id());
-        if (wanted.isEmpty()) return;
+        active.clear();
+        active.putAll(wanted);
+        if (wanted.isEmpty()) {
+            Compat.syncCommands();
+            return;
+        }
         for (Map.Entry<String, String> e : wanted.entrySet()) {
             String label = e.getKey();
             String target = e.getValue();
@@ -502,12 +524,18 @@ public final class MenuManager {
                         plugin.lang().send(sender, "general.players-only");
                         return true;
                     }
-                    MenuDef d = def(target);
+                    String now = active.get(label);
+                    if (now == null) {
+                        // the command was removed from the menu: answer like an unknown command
+                        sender.sendMessage(unknownCommand());
+                        return true;
+                    }
+                    MenuDef d = def(now);
                     if (d != null && !d.builtin && !canOpen(sender, "shop")) {
                         plugin.lang().send(sender, "general.no-permission");
                         return true;
                     }
-                    open((Player) sender, target, true);
+                    open((Player) sender, now, true);
                     return true;
                 }
             };
@@ -519,6 +547,15 @@ public final class MenuManager {
             }
         }
         Compat.syncCommands();
+    }
+
+    private static String unknownCommand() {
+        try {
+            String m = Bukkit.spigot().getConfig().getString("messages.unknown-command");
+            if (m != null) return org.bukkit.ChatColor.translateAlternateColorCodes('&', m);
+        } catch (Throwable ignored) {
+        }
+        return "Unknown command. Type \"/help\" for help.";
     }
 
     private static void put(Map<String, String> map, String cmd, String shop) {

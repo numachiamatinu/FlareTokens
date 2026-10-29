@@ -50,8 +50,10 @@ final class Builtins {
                 s.set(slots.get(i), s.build(item, slots.get(i), extra, who), null);
             }
             if (top.isEmpty()) empty(s, item);
-            // offline players: draw again once LuckPerms has loaded their rank
-            if (Placeholders.papi()) dev.tmdevelopment.flaretokens.hook.LuckPermsHook.load(offline, () -> {
+            // offline players: draw again once LuckPerms has loaded their rank (only when the entries use placeholders)
+            boolean placeholders = String.valueOf(item.spec.name()).contains("%")
+                    || item.spec.lore() != null && String.join("\n", item.spec.lore()).contains("%");
+            if (placeholders) dev.tmdevelopment.flaretokens.hook.LuckPermsHook.load(offline, () -> {
                 if (s.isOpen()) s.render();
             });
             return;

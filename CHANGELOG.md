@@ -1,5 +1,25 @@
 # Changelog — FlareTokens
 
+## 4.0.3
+
+### Fixed
+- Ranks in the top were empty for offline players: the LuckPerms expansion of PlaceholderAPI gives nothing for them.
+  `%luckperms_prefix%`, `%luckperms_suffix%` and `%luckperms_primary_group_name%` now come straight from LuckPerms
+  for offline players (also without PlaceholderAPI). Nothing to change in your files.
+- After updating from 4.0.0 / 4.0.1, `/tokens help` still showed `/tokens version`. The old line is now replaced
+  with the `/tokens about` one, only if you never edited it.
+- Permission multipliers of `drops.yml` were given to every OP: `flaretokens.multiplier.vip` / `mvp` are not
+  plugin.yml permissions, and Bukkit gives undeclared permissions to OPs. Now a multiplier counts only when the
+  permission is really given (permissions plugin, `*` included).
+- Saving from `/tokens editor` wrote the whole shop file again: quotes, lists and long lines changed, and on
+  1.8 - 1.17 the comments inside the file were lost. Now only what changed is written, in the same style as the
+  rest of the file, everything else stays as you wrote it.
+- `/tokens settings` removed a comment at the end of the line of the option it changed: now it stays.
+- `/tokens remove` said "Removed 1,000" when the player had less: it now shows what was really removed.
+- `/tokens shop <shop> <player>` from the console with a wrong shop sent the error to the player instead of the console.
+- After removing an `open-commands` entry and `/tokens reload`, the old command kept answering "There is no shop
+  called ..." until a restart (Paper): now it answers like an unknown command.
+
 ## 4.0.2
 
 ### New

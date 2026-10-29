@@ -15,8 +15,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * LuckPerms keeps only online players in memory, so placeholders like %luckperms_prefix% are empty for the
- * offline players of the top. This asks LuckPerms to load them first (in the background).
+ * LuckPerms keeps only online players in memory, and its PlaceholderAPI expansion gives nothing for offline
+ * players: %luckperms_prefix% was empty for the offline players of the top. This asks LuckPerms to load them
+ * (in the background) and fills their prefix, suffix and primary group itself.
  * Reached by reflection: nothing is needed when LuckPerms is not installed.
  */
 public final class LuckPermsHook {
@@ -25,6 +26,19 @@ public final class LuckPermsHook {
 
     private LuckPermsHook() {
     }
+
+    private static final String[] KEYS = {"%luckperms_prefix%", "%luckperms_suffix%", "%luckperms_primary_group_name%"};
+    private static Object manager;
+    private static Method getUser;
+    private static Method cachedData;
+    private static Method metaData;
+    private static Method prefix;
+    private static Method suffix;
+    private static Method primaryGroup;
+    private static Object groups;
+    private static Method getGroup;
+    private static Method friendlyName;
+    private static boolean broken;
 
     public static boolean installed() {
         Plugin lp = Bukkit.getPluginManager().getPlugin("LuckPerms");
@@ -66,5 +80,81 @@ public final class LuckPermsHook {
         } catch (Throwable t) {
             return false;
         }
+    }
+
+    /**
+     * Fills %luckperms_prefix%, %luckperms_suffix% and %luckperms_primary_group_name% of a player that LuckPerms
+     * has in memory (see {@link #load}). Players it doesn't have get them empty until they are loaded.
+     */
+    public static String fill(UUID id, String text) {
+        if (id == null || text == null || text.indexOf("%luckperms_") < 0 || broken || !installed()) return text;
+        boolean any = false;
+        for (String k : KEYS) any |= text.contains(k);
+        if (!any) return text;
+        try {
+            if (getUser == null) {
+                Class<?> api = Class.forName("net.luckperms.api.LuckPerms");
+                Class<?> users = Class.forName("net.luckperms.api.model.user.UserManager");
+                Class<?> user = Class.forName("net.luckperms.api.model.user.User");
+                Class<?> cached = Class.forName("net.luckperms.api.cacheddata.CachedDataManager");
+                Class<?> meta = Class.forName("net.luckperms.api.cacheddata.CachedMetaData");
+                Object lp = Class.forName("net.luckperms.api.LuckPermsProvider").getMethod("get").invoke(null);
+                manager = api.getMethod("getUserManager").invoke(lp);
+                cachedData = user.getMethod("getCachedData");
+                metaData = cached.getMethod("getMetaData");
+                prefix = meta.getMethod("getPrefix");
+                suffix = meta.getMethod("getSuffix");
+                primaryGroup = user.getMethod("getPrimaryGroup");
+                try {
+                    Class<?> groupManager = Class.forName("net.luckperms.api.model.group.GroupManager");
+                    groups = api.getMethod("getGroupManager").invoke(lp);
+                    getGroup = groupManager.getMethod("getGroup", String.class);
+                    friendlyName = Class.forName("net.luckperms.api.model.PermissionHolder").getMethod("getFriendlyName");
+                } catch (Throwable t) {
+                    getGroup = null; // the group name is shown as it is
+                }
+                getUser = users.getMethod("getUser", UUID.class);
+            }
+            Object user = getUser.invoke(manager, id);
+            if (user == null) {
+                // not loaded yet (the top draws again when it is): empty for now, not the raw placeholder
+                for (String k : KEYS) text = text.replace(k, "");
+                return text;
+            }
+            Object meta = metaData.invoke(cachedData.invoke(user));
+            text = text.replace(KEYS[0], text(prefix.invoke(meta)));
+            text = text.replace(KEYS[1], text(suffix.invoke(meta)));
+            if (text.contains(KEYS[2])) text = text.replace(KEYS[2], groupName(text(primaryGroup.invoke(user))));
+            return text;
+        } catch (Throwable t) {
+            broken = true; // another LuckPerms API: PlaceholderAPI does it as before
+            return text;
+        }
+    }
+
+    /** The display name of the group, like the LuckPerms expansion shows it. */
+    private static String groupName(String name) {
+        if (name.isEmpty() || getGroup == null) return name;
+        try {
+            Object group = getGroup.invoke(groups, name);
+            if (group != null) {
+                Object friendly = friendlyName.invoke(group);
+                if (friendly != null) return friendly.toString();
+            }
+        } catch (Throwable ignored) {
+            // the name as it is
+        }
+        return name;
+    }
+
+    private static String text(Object o) {
+        return o == null ? "" : o.toString();
+    }
+
+    /** LuckPerms was reloaded or restarted: look it up again. */
+    public static void reset() {
+        manager = null;
+        getUser = null;
+        broken = false;
     }
 }

@@ -89,6 +89,7 @@ public final class FlareTokens extends JavaPlugin {
         }
 
         VaultHook.setup();
+        dev.tmdevelopment.flaretokens.hook.LuckPermsHook.reset();
         sales = new dev.tmdevelopment.flaretokens.feature.Sales(this);
         chatInput = new dev.tmdevelopment.flaretokens.menu.ChatInput(this);
         menus = new MenuManager(this);
@@ -222,6 +223,7 @@ public final class FlareTokens extends JavaPlugin {
         Num.setSuffixes(getConfig().getStringList("format.suffixes"));
         tokens.reloadSettings();
         VaultHook.setup();
+        dev.tmdevelopment.flaretokens.hook.LuckPermsHook.reset();
         startTasks();
     }
 
@@ -235,6 +237,7 @@ public final class FlareTokens extends JavaPlugin {
         menus.load();
         drops.load();
         VaultHook.setup();
+        dev.tmdevelopment.flaretokens.hook.LuckPermsHook.reset();
         startTasks();
         sales.start();
         tokens.refreshTop();
